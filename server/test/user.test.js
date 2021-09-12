@@ -21,7 +21,7 @@ const dataUser = function(){
     };
 }
 
-test('Should get users', async function (){
+test('Coletar usuários', async function (){
     const saveUser = await request('http://localhost:3000/users','post', dataUser()); 
     const newUser = saveUser.data;
     const response = await request('http://localhost:3000/users', 'get');
@@ -30,7 +30,7 @@ test('Should get users', async function (){
     await userService.deleteUser(newUser.id);
 });
 
-test('Should save users', async function (){
+test('Salvar usuário', async function (){
     const data = dataUser()
     const response = await request('http://localhost:3000/users','post', data); 
     const user = response.data;
@@ -39,7 +39,7 @@ test('Should save users', async function (){
     await userService.deleteUser(user.id);
 });
 
-test('Should update a user', async function (){
+test('Alterar usuário', async function (){
     const responseSave = await request('http://localhost:3000/users','post',dataUser());
     const newUser = responseSave.data;
     newUser.nome = generate();

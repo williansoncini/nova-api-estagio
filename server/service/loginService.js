@@ -2,7 +2,6 @@
 const userService = require('../service/userService')
 const bcrypt = require('bcrypt')
 
-
 exports.login = async function (user){
     const userLogin = await userService.getUserByEmail(user.email);
     if (userLogin){
