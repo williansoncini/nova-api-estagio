@@ -22,6 +22,5 @@ const request = function(url, method, data){
 teste('Criar coluna', async function(){
     const data = generateData();
     const column = await request('http://localhost:3000/columns','post',data);
-    console.log('')
 
 })
