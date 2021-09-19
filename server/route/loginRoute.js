@@ -12,6 +12,7 @@ router.post('/login', async function (req, res){
         email:email,
         senha:pass
     });
+
     return res.json(menssage);
 });
 

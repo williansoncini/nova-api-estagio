@@ -1,6 +1,7 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const userService = require('../service/userService');
+const loginService = require('../service/loginService')
 
 const generate = function(){
     return crypto.randomBytes(20).toString('hex');
@@ -20,11 +21,18 @@ const dataUser = function(){
     };
 }
 
-test('Nao foi possivel logar', async function (){
+test.only('Nao foi possivel logar', async function (){
     const data = dataUser();
-    const saveUser = await request('http://localhost:3000/users','post', data); 
-    const newUser = saveUser.data;
-    const message = await request('http://localhost:3000/login','post', data);
-    expect(message.data).toBe('Sucesso!');
-    await userService.deleteUser(newUser.id);
+    const savedUser = await request('http://localhost:3000/users','post', data); 
+    const newUser = savedUser.data;
+    let response = await axios.post('http://localhost:3000/login',{},{
+        auth:{
+            username: newUser.email,
+            password: data.senha
+        }
+    });
+    response = response.data;
+    const token = response.token
+
+    expect(token.length).not.toBe(0)
 })

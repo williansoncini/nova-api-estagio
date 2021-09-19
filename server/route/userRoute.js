@@ -13,10 +13,11 @@ router.get('/users/:id', authMiddleware, async function (req, res){
     return res.json(user);
 });
 
-router.post('/users', authMiddleware, async function (req, res){
+router.post('/users', async function (req, res){
     const user = req.body;
     // console.log(user)
     const response = await userService.saveUser(user);
+    // console.log(response)
     res.json(response);
 });
 

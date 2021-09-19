@@ -9,6 +9,7 @@ exports.login = async function (user){
         const validPass = await bcrypt.compare(user.senha,userLogin.senha);
         if (validPass){
             const token = jwt.sign({user: userLogin.id});
+            // console.log(token)
             return {userLogin, token}
         }
         else
