@@ -3,13 +3,13 @@ const router = express.Router();
 const columnService = require('../service/columnService');
 const {authMiddleware} = require('../service/authService')
 
-router.post('/columns', authMiddleware, async function(req, res){
+router.post('/columns/', authMiddleware, async function(req, res){
     const data = req.body;
     const menssage = await columnService.createColumn(data);
     return res.json(menssage);
 })
 
-router.get('/columns', authMiddleware, async function(req, res){
+router.get('/columns/', authMiddleware, async function(req, res){
     const data = await columnService.getAllColumns();
     return res.json(data)
 })
@@ -33,7 +33,9 @@ router.put('/columns/:id', authMiddleware, async function(req, res){
     return res.json(response)
 })
 
+router.delete('/columns/:id', authMiddleware, async function (req, res){
+    await columnService.deleteColumn(req.params.id);
+    res.end();
+});
 // falta realizar a mudanca para o campo desativo
-
-
 module.exports = router;

@@ -19,3 +19,7 @@ exports.getColumnByIdTable = async function(id){
 exports.alterColumn = async function(id, data){
     return await columnData.alterColumn(id, data);
 }
+
+exports.deleteColumn = async function(id){
+    return await columnData.deleteColumn(id);
+}

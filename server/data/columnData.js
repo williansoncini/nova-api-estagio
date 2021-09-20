@@ -31,3 +31,7 @@ exports.alterColumn = async function(id,data){
         id
     ])
 }
+
+exports.deleteColumn = async function(id){
+    return database.none('delete from coluna where id = $1',[id])
+}

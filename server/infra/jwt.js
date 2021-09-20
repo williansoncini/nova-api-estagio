@@ -10,3 +10,6 @@ exports.verify = function(token){
     return jwt.verify(token, secret)
 } 
     
+exports.destroy = function(token){
+    return jwt.destroy(token)
+}

@@ -32,7 +32,7 @@ router.delete('/users/:id', authMiddleware, async function (req, res){
     res.end();
 });
 
-router.get('/users/:email', authMiddleware,async function (req, res){
+router.get('/users/mail/:email', authMiddleware,async function (req, res){
     const user = await userService.getUserByEmail(req.params.email);
     return res.json(user);
 });

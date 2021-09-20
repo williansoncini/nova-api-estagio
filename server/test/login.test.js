@@ -1,38 +1,31 @@
-const axios = require('axios');
-const crypto = require('crypto');
-const userService = require('../service/userService');
-const loginService = require('../service/loginService')
-
-const generate = function(){
-    return crypto.randomBytes(20).toString('hex');
-}
-
-const request = function(url, method, data){
-    return axios({url,method, data});
-}
+const {generateRandomString} = require('../infra/crypto')
+const {requestBasicLogin, request} = require('../infra/axios');
+const { generateDataUser } = require('./datas');
+const { makeLoginAndReturnToken } = require('./actions/userActions');
 
 const dataUser = function(){
     return {
-        nome:generate(),
-        email:generate(),
+        nome:generateRandomString(),
+        email:generateRandomString(),
         ativo: '1',
-        senha:generate(),
+        senha:generateRandomString(),
         departamento_id:1
     };
 }
 
-test.only('Nao foi possivel logar', async function (){
+test('Nao foi possivel logar', async function (){
     const data = dataUser();
-    const savedUser = await request('http://localhost:3000/users','post', data); 
-    const newUser = savedUser.data;
-    let response = await axios.post('http://localhost:3000/login',{},{
-        auth:{
-            username: newUser.email,
-            password: data.senha
-        }
-    });
-    response = response.data;
-    const token = response.token
-
+    const responseSaveUser = await request('users','post', data); 
+    const newUser = responseSaveUser.data;
+    let responseLogin = await requestBasicLogin('login',data);
+    responseLoginData = responseLogin.data;
+    const token = responseLoginData.token
     expect(token.length).not.toBe(0)
+})
+
+test('Logout', async function(){
+    const data = generateDataUser()
+    const token = makeLoginAndReturnToken(data)
+
+    
 })
