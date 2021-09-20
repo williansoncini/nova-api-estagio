@@ -14,7 +14,7 @@ const dataUser = function(){
         email:generateRandomString(),
         ativo: '1',
         senha:generateRandomString(),
-        departamento_id:1
+        departamento_id:3
     };
 }
 
@@ -74,17 +74,17 @@ test('Não foi possível consultar apenas 1 usuário', async function (){
     await userService.deleteUser(savedUser.id);
 })
 
-test('Não foi possível deletar o usuário', async function(){
+test.only('Não foi possível deletar o usuário', async function(){
     const data = dataUser()
     const responseSaveUser = await request('users','post', data); 
     const savedUser = responseSaveUser.data;
 
     const token = await makeLoginAndReturnToken(data)
 
-    await requestWithToken(`users/${savedUser.id}`, 'delete',{},token)
-    const responseGetOneUser = await requestWithToken(`users/${savedUser.id}`, 'get',{},token)
-    const oneUser = responseGetOneUser.data;
-    expect(oneUser).toBe(null)
+    const responseDeleteOneUser = await requestWithToken(`users/${savedUser.id}`, 'delete',{},token)
+    const oneUser = responseDeleteOneUser.data;
+    console.log(oneUser)
+    expect(oneUser.excluido).toBe('1')
 })
 
 test('Buscar usuário por email', async function (){

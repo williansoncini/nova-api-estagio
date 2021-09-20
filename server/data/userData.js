@@ -15,7 +15,7 @@ exports.saveUser = function(user){
 };
 
 exports.deleteUser = function(id){
-    return database.none('delete from usuario where id = $1', [id]);
+    return database.oneOrNone("update usuario set excluido='1' where id=$1 returning *" , [id]);
 };
 
 exports.getUser = function(id){

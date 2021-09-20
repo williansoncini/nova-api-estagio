@@ -11,7 +11,7 @@ exports.savetypeColumn = function(typeColumn){
 };
 
 exports.deletetypeColumn = function(id){
-    return database.none('delete from tipocoluna where id = $1', [id]);
+    return database.none("update tipocoluna set excluido='1' where id = $1", [id]);
 };
 
 exports.gettypeColumn = function(id){

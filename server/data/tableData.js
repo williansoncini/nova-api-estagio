@@ -9,7 +9,7 @@ exports.findTableById = function(id){
 }
 
 exports.deleteTable = function(id){
-    return database.none('delete from tabela where id = $1', [id]);
+    return database.none("update tabela set excluido='1' where id = $1", [id]);
 }
 
 exports.alterTable = function(id, data){

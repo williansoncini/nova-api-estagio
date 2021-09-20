@@ -15,9 +15,7 @@ router.get('/users/:id', authMiddleware, async function (req, res){
 
 router.post('/users', async function (req, res){
     const user = req.body;
-    // console.log(user)
     const response = await userService.saveUser(user);
-    // console.log(response)
     res.json(response);
 });
 
@@ -28,8 +26,8 @@ router.put('/users/:id', authMiddleware, async function (req, res){
 });
 
 router.delete('/users/:id', authMiddleware, async function (req, res){
-    await userService.deleteUser(req.params.id);
-    res.end();
+    const response = await userService.deleteUser(req.params.id);
+    res.json(response);
 });
 
 router.get('/users/mail/:email', authMiddleware,async function (req, res){
