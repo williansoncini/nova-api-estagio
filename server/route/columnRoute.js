@@ -34,8 +34,8 @@ router.put('/columns/:id', authMiddleware, async function(req, res){
 })
 
 router.delete('/columns/:id', authMiddleware, async function (req, res){
-    await columnService.deleteColumn(req.params.id);
-    res.end();
+    const response = await columnService.deleteColumn(req.params.id);
+    res.json(response);
 });
 // falta realizar a mudanca para o campo desativo
 module.exports = router;

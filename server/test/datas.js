@@ -6,7 +6,7 @@ exports.generateDataUser = function(){
         email:generateRandomString(),
         ativo: '1',
         senha:generateRandomString(),
-        departamento_id:1
+        departamento_id:null
     };
 }
 
@@ -23,7 +23,7 @@ exports.generateDataTable = function(){
     return {
         nome:generateRandomString(),
         ativa: '1',
-        categoria_id:1
+        categoria_id:null
     };
 }
 
@@ -37,5 +37,12 @@ exports.generateDataCategory = function(){
 exports.generateTypeColumn = function(){
     return {
         descricao:generateRandomString()
+    };
+}
+
+exports.generateDataDepartament = function(){
+    return {
+        descricao: generateRandomString(),
+        ativo:'1'
     };
 }

@@ -26,8 +26,8 @@ router.put('/typeColumns/:id', authMiddleware, async function (req, res){
 });
 
 router.delete('/typeColumns/:id', authMiddleware, async function (req, res){
-    await typeColumnService.deletetypeColumn(req.params.id);
-    res.end();
+    const response = await typeColumnService.deletetypeColumn(req.params.id);
+    res.json(response);
 });
 
 module.exports = router;

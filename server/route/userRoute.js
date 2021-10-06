@@ -21,8 +21,8 @@ router.post('/users', async function (req, res){
 
 router.put('/users/:id', authMiddleware, async function (req, res){
     const data = req.body;
-    await userService.updateUser(req.params.id,data);
-    res.end();
+    const response = await userService.updateUser(req.params.id,data);
+    res.json(response);
 });
 
 router.delete('/users/:id', authMiddleware, async function (req, res){

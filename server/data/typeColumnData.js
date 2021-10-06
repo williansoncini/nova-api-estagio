@@ -1,4 +1,4 @@
-const database = require('../infra/database');
+const database = require('../infra/database_system');
 
 exports.gettypeColumns = function () {
     return database.query('select * from tipocoluna');
@@ -11,7 +11,7 @@ exports.savetypeColumn = function(typeColumn){
 };
 
 exports.deletetypeColumn = function(id){
-    return database.none("update tipocoluna set excluido='1' where id = $1", [id]);
+    return database.oneOrNone("update tipocoluna set excluido='1' where id=$1 returning *" , [id]);
 };
 
 exports.gettypeColumn = function(id){

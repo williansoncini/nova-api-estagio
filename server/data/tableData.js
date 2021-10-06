@@ -1,4 +1,4 @@
-const database = require('../infra/database')
+const database = require('../infra/database_system')
 
 exports.saveTable = function (data){
     return database.one('insert into tabela (nome, ativa, categoria_id) values ($1,$2,$3) returning *', [data.nome, data.ativa, data.categoria_id]);
@@ -9,7 +9,7 @@ exports.findTableById = function(id){
 }
 
 exports.deleteTable = function(id){
-    return database.none("update tabela set excluido='1' where id = $1", [id]);
+    return database.oneOrNone("update tabela set excluido='1' where id=$1 returning *" , [id]);
 }
 
 exports.alterTable = function(id, data){

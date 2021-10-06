@@ -8,7 +8,10 @@ exports.getUsers = function (){
 
 exports.saveUser = async function(user){
     // console.log(await bcrypt.hash(user.senha, 10));
+    // checar
+
     user.senha = await bcrypt.hash(user.senha, 10);
+    // salvarLog()
     return userData.saveUser(user);
 };
 

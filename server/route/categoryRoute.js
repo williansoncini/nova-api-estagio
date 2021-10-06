@@ -26,8 +26,8 @@ router.put('/categorys/:id', authMiddleware, async function (req, res){
 });
 
 router.delete('/categorys/:id', authMiddleware, async function (req, res){
-    await categoryService.deletecategory(req.params.id);
-    res.end();
+    const response = await categoryService.deletecategory(req.params.id);
+    res.json(response);
 });
 
 module.exports = router;

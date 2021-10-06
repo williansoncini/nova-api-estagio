@@ -1,4 +1,4 @@
-const database = require('../infra/database');
+const database = require('../infra/database_system');
 
 exports.getcategorys = function () {
     return database.query('SELECT * FROM CATEGORIA');
@@ -12,7 +12,7 @@ exports.savecategory = function(category){
 };
 
 exports.deletecategory = function(id){
-    return database.none("update categoria set excluido='1' where id = $1", [id]);
+    return database.oneOrNone("update categoria set excluido='1' where id=$1 returning *" , [id]);
 };
 
 exports.getcategory = function(id){

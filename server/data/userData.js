@@ -1,16 +1,15 @@
-const database = require('../infra/database');
+const database = require('../infra/database_system');
 
 exports.getUsers = function () {
     return database.query('SELECT * FROM USUARIO');
 };
 
 exports.saveUser = function(user){
-    return database.one('insert into usuario (nome, email, ativo, senha, departamento_id) values ($1, $2, $3, $4, $5) returning *',[
+    return database.one('insert into usuario (nome,email,ativo,senha) values ($1,$2,$3,$4) returning *',[
         user.nome,
         user.email,
         user.ativo,
-        user.senha,
-        user.departamento_id
+        user.senha
     ]);
 };
 
@@ -23,7 +22,7 @@ exports.getUser = function(id){
 }
 
 exports.updateUser = function(id, data){
-    return database.none("update usuario set nome=$1,email=$2,ativo=$3,senha=$4,departamento_id=$5 where usuario.id=$6",[
+    return database.oneOrNone("update usuario set(nome,email,ativo,senha,departamento_id)=($1,$2,$3,$4,$5) where id=$6 returning *",[
         data.nome,
         data.email,
         data.ativo,

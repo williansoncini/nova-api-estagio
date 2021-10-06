@@ -17,9 +17,8 @@ router.put('/tables/:id', authMiddleware, async function(req, res){
 });
 
 router.delete('/tables/:id', authMiddleware, async function(req, res){
-    const id = req.params.id;
-    await tableService.deleteTable(id);
-    return res.json('sucess!')
+    const response = await tableService.deleteTable(req.params.id);
+    res.json(response);
 })
 
 router.get('/tables/:id', authMiddleware, async function(req, res){

@@ -1,114 +1,97 @@
-const {generateRandomString} = require('../infra/crypto')
-const {request, requestWithToken, requestBasicLogin} = require('../infra/axios')
-const tableService = require('../service/tableService');
-
-const makeLoginAndReturnToken = async function(data){
-    let responseLogin = await requestBasicLogin('login',data);
-    responseLoginData = responseLogin.data;
-    return responseLoginData.token
-}
-
-const dataUser = function(){
-    return {
-        nome:generateRandomString(),
-        email:generateRandomString(),
-        ativo: '1',
-        senha:generateRandomString(),
-        departamento_id:1
-    };
-}
-
-const dataTable = function(){
-    return {
-        nome:generateRandomString(),
-        ativa: '1',
-        categoria_id:1
-    };
-}
+const { generateDataTable,generateDataUser } = require('./datas')
+const {makeLoginAndReturnToken,createUser,getAllAny,getAnyById,updateAny,deleteAny, createAny}  = require('./actions/generalActions');
+const { requestWithToken } = require('../infra/axios');
 
 test("Cadastro de tabela", async function(){
-    const dataForUser = dataUser()
-    await request('users','post', dataForUser); 
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(dataForUser)
+    const token = await makeLoginAndReturnToken(dataUser)
 
-    const dataForTable = dataTable();
-    const response = await requestWithToken('tables','post',dataForTable, token);
-    const newTable = response.data;
-    const responseGetTable = await requestWithToken(`tables/${newTable.id}`,'get',{},token);
-    const getTable = responseGetTable.data;
-    // const getTable = await tableService.findTableById(newTable.id);
-    expect(newTable.id).toBe(getTable.id);
-    expect(newTable.nome).toBe(getTable.nome);
-    await requestWithToken(`tables/${newTable.id}`,'delete',{},token);
+    const dataTable = generateDataTable()
+    const newTable = await createAny('tables',dataTable,token)
+    expect(newTable.nome).toBe(dataTable.nome)
+    expect(newTable.ativa).toBe(dataTable.ativa)
+    
+    const deletedTable = await deleteAny('tables',newTable.id,token)
+    expect(deletedTable.excluido).toBe('1')
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 });
 
 test("Alteração de tabela", async function(){
-    const dataForUser = dataUser()
-    await request('users','post', dataForUser); 
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(dataForUser)
+    const token = await makeLoginAndReturnToken(dataUser)
 
-    const dataForTable = dataTable();
-    const response = await requestWithToken('tables','post',dataForTable, token);
-    const newTable = response.data;
+    const dataTable = generateDataTable()
+    const newTable = await createAny('tables',dataTable,token)
 
-    const newData = dataTable();
-    const responseAlterTable = await requestWithToken(`tables/${newTable.id}`,'put', newData, token);
-    const alterTable = responseAlterTable.data;
-    expect(alterTable.nome).toBe(newData.nome);
-    await requestWithToken(`tables/${newTable.id}`,'delete',{},token);
+    const newDataTable = generateDataTable()
+    const updatedTable = await updateAny('tables',newDataTable,newTable.id,token)
+    expect(updatedTable.nome).toBe(updatedTable.nome)
+    expect(updatedTable.ativa).toBe(updatedTable.ativa)
+
+    const deletedTable = await deleteAny('tables',newTable.id,token)
+    expect(deletedTable.excluido).toBe('1')
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 });
 
 test("Apagar tabela", async function(){
-    const dataForUser = dataUser()
-    await request('users','post', dataForUser); 
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(dataForUser)
+    const token = await makeLoginAndReturnToken(dataUser)
 
-    const dataForTable = dataTable();
-    const response = await requestWithToken('tables','post',dataForTable, token);
-    const newTable = response.data;
+    const dataTable = generateDataTable()
+    const newTable = await createAny('tables',dataTable,token)
 
-    await requestWithToken(`tables/${newTable.id}`,'delete',{},token);
-    
-    const responseGetTable = await requestWithToken(`tables/${newTable.id}`,'get',{},token);
-    const getTable = responseGetTable.data;
+    const deletedTable = await deleteAny('tables',newTable.id,token)
+    expect(deletedTable.excluido).toBe('1')
 
-    expect(getTable).toBe(null);
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 });
 
 test("Pegar apenas uma tabela", async function(){
-    const dataForUser = dataUser()
-    await request('users','post', dataForUser); 
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(dataForUser)
+    const token = await makeLoginAndReturnToken(dataUser)
 
-    const dataForTable = dataTable();
-    const response = await requestWithToken('tables','post',dataForTable, token);
-    const newTable = response.data;
+    const dataTable = generateDataTable()
+    const newTable = await createAny('tables',dataTable,token)
 
-    const responseGetTable = await requestWithToken(`tables/${newTable.id}`,'get',{},token);
-    const getTable = responseGetTable.data;
-    expect(getTable.id).toBe(newTable.id);
-    expect(getTable.nome).toBe(newTable.nome);
-    await requestWithToken(`tables/${newTable.id}`,'delete',{},token);
+    const oneTable = await getAnyById('tables',newTable.id,token)
+    expect(oneTable.nome).toBe(newTable.nome)
+
+    const deletedTable = await deleteAny('tables',newTable.id,token)
+    expect(deletedTable.excluido).toBe('1')
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 })
 
 test("Pegar várias tabelas", async function(){
-    const dataForUser = dataUser()
-    await request('users','post', dataForUser); 
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(dataForUser)
+    const token = await makeLoginAndReturnToken(dataUser)
 
-    const dataForTable = dataTable();
-    const response = await requestWithToken('tables','post',dataForTable, token);
-    const newTable = response.data;
+    const dataTable = generateDataTable()
+    const newTable = await createAny('tables',dataTable,token)
 
-    const responseGetTables = await requestWithToken('tables','get',{},token);
-    const tables = responseGetTables.data;
-    const lenght = tables.lenght;
-    expect(lenght).not.toBe(0);
-    await requestWithToken(`tables/${newTable.id}`,'delete',{},token);
+    const tables = await getAllAny('tables',token)
+    expect(tables.length).not.toBe(0)
+
+    const deletedTable = await deleteAny('tables',newTable.id,token)
+    expect(deletedTable.excluido).toBe('1')
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 })
 

@@ -1,105 +1,84 @@
-const userService = require('../service/userService');
-const {generateRandomString} = require('../infra/crypto')
-const {request, requestBasicLogin, requestWithToken} = require('../infra/axios')
-
-const makeLoginAndReturnToken = async function(data){
-    let responseLogin = await requestBasicLogin('login',data);
-    responseLoginData = responseLogin.data;
-    return responseLoginData.token
-}
-
-const dataUser = function(){
-    return {
-        nome:generateRandomString(),
-        email:generateRandomString(),
-        ativo: '1',
-        senha:generateRandomString(),
-        departamento_id:3
-    };
-}
+const { generateDataUser } = require('./datas')
+const {makeLoginAndReturnToken,createUser,getAllAny,getAnyById,updateAny,deleteAny}  = require('./actions/generalActions');
+const { requestWithToken } = require('../infra/axios');
 
 test('Coletar usuários', async function (){
-    const data = dataUser()
-    const saveUser = await request('users','post', data); 
-    const newUser = saveUser.data;
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(data)
+    const token = await makeLoginAndReturnToken(dataUser)
 
-    const response = await requestWithToken('users', 'get',{},token);
-    const length = (response.data).length;
-    expect(length).not.toBe(0);
-    await userService.deleteUser(newUser.id);
+    const users = await getAllAny('users',token)
+    expect(users.length).not.toBe(0)
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 });
 
 test('Salvar usuário', async function (){
-    const data = dataUser()
-    const response = await request('users','post', data); 
-    const user = response.data;
-    expect(user.nome).toBe(data.nome);
-    expect(user.email).toBe(data.email);
-    await userService.deleteUser(user.id);
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
+
+    const token = await makeLoginAndReturnToken(dataUser)
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 });
 
 test('Alterar usuário', async function (){
-    const data = dataUser()
-    const responseSave = await request('users','post',data);
-    const newUser = responseSave.data;
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(data)
+    const token = await makeLoginAndReturnToken(dataUser);
 
-    newUser.nome = generateRandomString();
-    newUser.email = generateRandomString();
-    newUser.senha = generateRandomString();
+    const newDataUser = generateDataUser()
+    const updatedUser = await updateAny('users',newDataUser,newUser.id,token)
 
-    await requestWithToken(`users/${newUser.id}`,'put',newUser, token); 
-    const responsePut = await requestWithToken(`users/${newUser.id}`, 'get',{},token)
-    const updatedUser = responsePut.data;
-    expect(updatedUser.nome).toBe(newUser.nome)
-    expect(updatedUser.email).toBe(newUser.email)
-    await userService.deleteUser(updatedUser.id);
+    expect(updatedUser.nome).toBe(newDataUser.nome)
+    expect(updatedUser.email).toBe(newDataUser.email)
+    expect(updatedUser.ativo).toBe(newDataUser.ativo)
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 });
 
 test('Não foi possível consultar apenas 1 usuário', async function (){
-    const data = dataUser()
-    const responseSaveUser = await request('users','post', data); 
-    const savedUser = responseSaveUser.data;
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(data)
+    const token = await makeLoginAndReturnToken(dataUser);
 
-    const responseGetOneUser = await requestWithToken(`users/${savedUser.id}`, 'get', {}, token)
-    const oneUser = responseGetOneUser.data;
-    expect(oneUser.id).toBe(savedUser.id);
-    expect(oneUser.nome).toBe(savedUser.nome);
-    expect(oneUser.email).toBe(savedUser.email);
-    await userService.deleteUser(savedUser.id);
+    const oneUser = await getAnyById('users',newUser.id,token)
+    expect(oneUser.nome).toBe(newUser.nome)
+    expect(oneUser.email).toBe(newUser.email)
+    expect(oneUser.ativo).toBe(newUser.ativo)
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 })
 
-test.only('Não foi possível deletar o usuário', async function(){
-    const data = dataUser()
-    const responseSaveUser = await request('users','post', data); 
-    const savedUser = responseSaveUser.data;
+test('Não foi possível deletar o usuário', async function(){
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(data)
+    const token = await makeLoginAndReturnToken(dataUser);
 
-    const responseDeleteOneUser = await requestWithToken(`users/${savedUser.id}`, 'delete',{},token)
-    const oneUser = responseDeleteOneUser.data;
-    console.log(oneUser)
-    expect(oneUser.excluido).toBe('1')
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 })
 
 test('Buscar usuário por email', async function (){
-    const data = dataUser()
-    const responseSaveUser = await request('users','post', data); 
-    const savedUser = responseSaveUser.data;
+    const dataUser = generateDataUser()
+    const newUser = await createUser(dataUser);
 
-    const token = await makeLoginAndReturnToken(data)
-    // console.log(token)
-    // const oneUser = await userService.getUserByEmail(savedUser.email);
-    const responseGetUserByEmail = await requestWithToken(`users/mail/${savedUser.email}`,'get', {}, token)
+    const token = await makeLoginAndReturnToken(dataUser);
+
+    const responseGetUserByEmail = await requestWithToken(`users/mail/${newUser.email}`,'get', {}, token)
     const oneUser = responseGetUserByEmail.data;
 
-    expect(oneUser.id).toBe(savedUser.id);
-    expect(oneUser.nome).toBe(savedUser.nome);
-    expect(oneUser.email).toBe(savedUser.email);
-    await userService.deleteUser(savedUser.id);
+    expect(oneUser.id).toBe(newUser.id);
+    expect(oneUser.nome).toBe(newUser.nome);
+    expect(oneUser.email).toBe(newUser.email);
+
+    const deletedUser = await deleteAny('users',newUser.id,token)
+    expect(deletedUser.excluido).toBe('1')
 })

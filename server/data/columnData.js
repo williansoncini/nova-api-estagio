@@ -1,4 +1,4 @@
-const database = require('../infra/database')
+const database = require('../infra/database_system')
 
 exports.createColumn = async function(data){
     
@@ -33,5 +33,5 @@ exports.alterColumn = async function(id,data){
 }
 
 exports.deleteColumn = async function(id){
-    return database.none("update coluna set excluido='1' where id = $1",[id])
+    return database.oneOrNone("update coluna set excluido='1' where id=$1 returning *" , [id]);
 }
