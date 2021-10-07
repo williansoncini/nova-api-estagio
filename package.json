@@ -18,7 +18,6 @@
     "express-fileupload": "^1.2.1",
     "jest": "^27.1.0",
     "jsonwebtoken": "^8.5.1",
-    "node-xlsx": "^0.17.2",
     "pg-promise": "^10.11.0"
   },
   "devDependencies": {
