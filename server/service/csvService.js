@@ -7,19 +7,16 @@ exports.createCsvFromMatrix = function(matrix){
 
     const numberRows = matrix.length
     const numberColumns = matrix[0].length
-    
-    for (let r=0; r <= numberRows; r++){
+
+    for (let r=0; r < numberRows; r++){
         for(let c=0; c < numberColumns; c++){
-            // console.log(r + ' - ' + c)
-            // if (c != numberColumns)
-            
-                const data = JSON.stringify(matrix[r][c])
-                addDataAtFile(filePath, data)
-            //     if (c != numberColumns)
-                    addDelimiterAtFile(filePath, delimiter)
+            const data = JSON.stringify(matrix[r][c])
+            addDataAtFile(filePath, data)
+            if (c < numberColumns-1)
+                addDelimiterAtFile(filePath, delimiter)
         }
-        // if (r != numberRows)
-        addBreakLineAtFile(filePath)
+        if (r < numberRows-1)
+            addBreakLineAtFile(filePath)
     }
 }
 
