@@ -14,7 +14,8 @@ exports.generateDataColumn = function(){
     return {
     nome:generateRandomString(),
     vazio:'1',
-    id_tipocoluna:0,
+    tipo_coluna = 'INT',
+    // id_tipocoluna:0,
     id_tabela:0
     }
 }

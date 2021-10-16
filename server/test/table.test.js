@@ -1,6 +1,5 @@
 const { generateDataTable,generateDataUser } = require('./datas')
 const {makeLoginAndReturnToken,createUser,getAllAny,getAnyById,updateAny,deleteAny, createAny}  = require('./actions/generalActions');
-const { requestWithToken } = require('../infra/axios');
 
 test("Cadastro de tabela", async function(){
     const dataUser = generateDataUser()

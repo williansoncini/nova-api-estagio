@@ -1,4 +1,4 @@
-const database = require('../infra/database_datas')
+const database = require('../infra/database/database_datas')
 
 exports.createTable = async function(tabela){
     const table = tabela.table
