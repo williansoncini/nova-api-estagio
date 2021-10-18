@@ -1,101 +1,81 @@
-const tableData = require('../../../data/table/tableData');
+const tableDataSystem = require('../../../data/table/system/tableDataSystem');
 const columnsService = require('../columnService')
 
 exports.saveTable = async function(table){
-    const tableName = table.name
-    const existsTableInDataDb = await tableData.findTableBynameInDataDb(tableName)
-    // console.log(existsTableInDataDb)
-    if (!existsTableInDataDb)
-        await createTableInDataDb(table)
-    else
-        return 'A tabela já existe no banco de dados'
-
-    const existsTableInSystemDb = await tableData.findTableBynameInSystemDb(tableName)
-    if(!existsTableInSystemDb){
-        let tableReturn = await saveTableInDataSystem(table)
-        const columns = await columnsService.saveColumnsInDataSystem(tableReturn.id, table.columns)
-        tableReturn.columns = columns
-        return tableReturn
+    const tableName = table.nome
+    let existsTable = {}
+    try {
+        existsTable = await tableDataSystem.getTableByNameOrNull(tableName)
+    } catch (error) {
+        return {'status':400,'error':'Não foi possível consultar a tabela no banco de dados'}
+    }
+    if(existsTable == null){
+        try {
+            table.ativa = '1'
+            await tableDataSystem.saveTable(table)
+            return {'status':200,'sucess':`A tabela ${tableName} foi salva com sucesso!`}
+        } catch (error) {
+            return {'status':400,'sucess':`Falha ao salvar a tabela '${tableName}'!`}
+        }
     }
     else
-        return 'A tabela já existe no sistema'
+        return {'status':400,'error':`Falha ao cadastrar! A tabela '${tableName}' já existe!`}
 }
 
 exports.findTableById = async function(id){
-    return await tableData.findTableById(id);
+    let existsTable = {}
+    try {
+        existsTable = await tableDataSystem.findTableById(id)
+    } catch (error) {
+        return {'status':400,'error':'Não foi possível encontrar a tabela no banco de dados'}
+    }
+    if(existsTable != null){    
+        return {'status':200,'sucess':'Tabela encontrada!', 'table':existsTable.nome}
+    }
 }
 
 exports.deleteTable = async function(id){
-    return await tableData.deleteTable(id);
+    let existsTable = {}
+    try {
+        existsTable = await tableDataSystem.findTableById(id)
+    } catch (error) {
+        return {'status':400,'error':'Não foi possível consultar a tabela no banco de dados'}
+    }
+    if(existsTable != null){
+        try {
+            await tableDataSystem.deleteTable(id); 
+            return {'status':200,'sucess':`A tabela '${existsTable.nome}' foi deletada com sucesso!`, 'tableName':existsTable.nome}
+        } catch (error) {
+            return {'status':400,'error':`A tabela '${existsTable.nome}' não pode ser deletada`}
+        }
+    }
+    return {'status':400,'error':`A tabela não pode ser encontrada!`}
 }
 
 exports.alterTable = async function(id, data){
-    const table = await tableData.findTableById(id)
+    let table = {}
+    try {
+        table = await tableDataSystem.findTableById(id)
+    } catch (error) {
+        return {'status':400,'error':'Erro ao procurar a tabela!'}        
+    }
     const oldName = table.nome
     const newName = data.nome
-    if (oldName != newName){
-        // const existsTableInDataDb = await tableData.findTableBynameInDataDb(oldName)
-        // if (existsTableInDataDb != null)
-        //     await tableData.alterTableInDataDb(oldName, newName)   
-        // else
-        //     return 'A tabela não existe no banco de dados dos arquivos excels'
-        // const existsTableInSystemDb = await tableData.findTableBynameInSystemDb(oldName)
-        // if(existsTableInSystemDb != null)
-        //     return await tableData.alterTable(id,data);
-        // else
-        //     return 'A tabela não existe no banco de dados do sistema'
-    }
-    
-   
-}
-
-exports.getTables = async function(){
-    return await tableData.getTables();
-}
-
-async function createTableInDataDb(table, columns){
+    // if (oldName != newName){
     try {
-        checkTableInDb = await tableData.checkIfExistsDatabaseInDbData(table)
-        if (checkTableInDb == null){
-            await tableData.createTableInDataDbData(table)
-            console.log('sucess')
-        }
-        else{
-            console.log('Table already exists')
-            return 'Table already exists'
-        }
+        tableDataSystem.alterTable(id,data)
+        return{'status':200,'sucess':'Tabela alterada com sucesso!','oldTableName': oldName}
     } catch (error) {
-        console.log(error)
+        return{'status':400,'error':'Erro ao alterar a tabela no sistema'}
     }
+    // }
 }
 
-const saveTableInDataSystem = async function(table){
+exports.getActiveTables = async function(){
     try {
-        checkIfTableExists = await tableData.getTableByName(table);
-        if (checkIfTableExists == null){
-            if (table.ativa == null)
-                table.ativa = '1' 
-                console.log('sucess')
-                return await tableData.saveTable(table);
-        }
-        else{
-            console.log('Table already exists')
-            return 'Table already exists'
-        }
+        const tables = await tableDataSystem.getActiveTables();
+        return {'status':200,'sucess':'Tabelas consultadas com sucesso!', 'tables':tables}
     } catch (error) {
-        console.log(error)
+        return {'status':400,'error':'Não foi possível coletar todas as tabelas'}
     }
-}
-
-const alterNameTable = async function (oldName, newName){
-    const existsTableInDataDb = await tableData.findTableBynameInDataDb(oldName)
-    if (existsTableInDataDb != null)
-        await tableData.alterTableInDataDb(oldName, newName)   
-    else
-        return 'A tabela não existe no banco de dados dos arquivos excels'
-    const existsTableInSystemDb = await tableData.findTableBynameInSystemDb(oldName)
-    if(existsTableInSystemDb != null)
-        return await tableData.alterTable(id,data);
-    else
-        return 'A tabela não existe no banco de dados do sistema'
 }

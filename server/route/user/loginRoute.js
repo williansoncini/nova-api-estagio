@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-// const userService = require('../service/userService')
 const loginService = require('../../service/user/loginService')
-const jwt = require('../../infra/provider/jwt')
 
 router.post('/login', async function (req, res){
+    console.log('aqui')
     const [hashType, hash] = req.headers.authorization.split(" ")
     const credentials = Buffer.from(hash, 'base64').toString()
     const [email, pass] = credentials.split(":")
