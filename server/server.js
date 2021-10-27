@@ -1,8 +1,14 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
-
+const cors = require('cors')
 const app = express();
 
+const corsOptions = {
+    origin: 'http://localhost:3006',
+    optionsSuccessStatus:200
+}
+
+app.use(cors(corsOptions))
 app.use(express.json());
 app.use(fileUpload(/*{
     // useTempFiles:true,
