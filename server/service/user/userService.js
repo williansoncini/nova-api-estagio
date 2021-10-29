@@ -7,12 +7,40 @@ exports.getUsers = function (){
 };
 
 exports.saveUser = async function(user){
-    // console.log(await bcrypt.hash(user.senha, 10));
-    // checar
+    user.nome = String(user.nome).trim()
+    user.email = String(user.email).trim()
+    try {
+        const existendUserEmail = await userData.getUserByEmail(user.email)
+        if (existendUserEmail != null)
+            return {'status':400,'error':'Este email já está sendo utilizado!'}
+    } catch (error) {
+        return {'status':400,'error':'Falha ao consultar usuário existente por email!'}
+    }
 
-    user.senha = await bcrypt.hash(user.senha, 10);
+    try {
+        const existendUserName = await userData.getUserByName(user.nome)
+        if (existendUserName != null)
+            return {'status':400,'error':'Este nome já está sendo utilizado!'}
+    } catch (error) {
+        return {'status':400,'error':'Falha ao consultar usuário existente por email!'}
+    }
+
+    if(user.nome.length > 100)
+        return {'status':400,'error':'Nome de usuário supera a 100 caracteres!'}
+
+    try{
+        user.senha = await bcrypt.hash(user.senha, 10);
+    }catch{
+        return {'status':400,'error':'Falha ao criptografar a senha!'}
+    }
     // salvarLog()
-    return userData.saveUser(user);
+    try {
+        const savedUser = await userData.saveUser(user);
+        return {'status':200, 'success':'Usuário cadastrado com sucesso!', 'data':savedUser}
+    } catch (error) {
+        console.log(error)
+        return {'status':400,'error':'Falha ao cadastrar usuário no banco de dados!'}
+    }
 };
 
 exports.deleteUser = function(id){
@@ -28,6 +56,9 @@ exports.updateUser = async function(id, user){
     return userData.updateUser(id, user)
 }
 
-exports.getUserByEmail = function(email){
+const getUserByEmail = function(email){
     return userData.getUserByEmail(email);
 }
+
+exports.getUserByEmail = getUserByEmail
+

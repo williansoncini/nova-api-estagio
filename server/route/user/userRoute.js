@@ -14,9 +14,18 @@ router.get('/users/:id', authMiddleware, async function (req, res){
 });
 
 router.post('/users', async function (req, res){
-    const user = req.body;
-    const response = await userService.saveUser(user);
-    res.json(response);
+    try {
+        const user = req.body;
+        if (user == {})
+            return res.status(400).json({'error':'Dados vazios'})
+        const response = await userService.saveUser(user);
+        if (response.status !== 200)
+            return res.status(response.status).json({'error': response.error})
+        return res.status(response.status).json({'success':response.success, 'data':response.data})
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({'error':'Falha ao cadastrar usuário!'})
+    }
 });
 
 router.put('/users/:id', authMiddleware, async function (req, res){

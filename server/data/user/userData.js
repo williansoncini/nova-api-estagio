@@ -32,8 +32,9 @@ exports.updateUser = function(id, data){
 }
 
 exports.getUserByEmail = function(email){
-    // console.log('email na database: ', email)
-    // return database.oneOrNone("select * from usuario where email='teste@teste.com'");
-    return database.oneOrNone('select * from usuario where email = $1',[email]);
+    return database.oneOrNone(`select * from usuario where email='${email}';`);
 }
 
+exports.getUserByName = function(name){
+    return database.oneOrNone(`select * from usuario where nome='${name}';`);
+}
