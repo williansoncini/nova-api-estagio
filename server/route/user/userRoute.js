@@ -9,7 +9,16 @@ router.get('/users', authMiddleware, async function (req, res){
 });
 
 router.get('/users/:id', authMiddleware, async function (req, res){
-    const user = await userService.getUser(req.params.id);
+    try {
+        const user = await userService.getUser(req.params.id);
+        if (user)
+            return res.status(200).json({'success': 'Usuário encontrado', 'user':user})
+        else
+            return res.status(404).json({'error':'Usuário não encontrado!'})
+    } catch (error) {
+        return res.status(400).json({'error':'Falha ao buscar usuário!'})
+    }
+    
     return res.json(user);
 });
 
@@ -19,6 +28,7 @@ router.post('/users', async function (req, res){
         if (user == {})
             return res.status(400).json({'error':'Dados vazios'})
         const response = await userService.saveUser(user);
+        console.log(response)
         if (response.status !== 200)
             return res.status(response.status).json({'error': response.error})
         return res.status(response.status).json({'success':response.success, 'data':response.data})
