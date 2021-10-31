@@ -15,16 +15,24 @@ exports.saveUser = function(user){
 };
 
 exports.deleteUser = function(id){
-    return database.oneOrNone("update usuario set excluido='1' where id=$1 returning *" , [id]);
+    return database.oneOrNone("delete from usuario where id=$1 returning *" , [id]);
 };
 
 exports.getUser = function(id){
     return database.oneOrNone(`select * from get_users where id='${id}'`);
 }
 
-exports.updateUser = function(id,data){
-    console.log('estou aqui')
-    console.log(data)
+exports.updateUserWithOutPass = function(id,data){
+    return database.oneOrNone("update usuario set(nome,email,ativo,departamento_id,tipo_acesso_id)=($1,$2,$3,$4,$5) where id=$6 returning *",[
+        data.nome,
+        data.email,
+        data.ativo,
+        data.departamento_id,
+        data.tipo_acesso_id,
+        id])
+}
+
+exports.updateUserWithPass = function(id,data){
     return database.oneOrNone("update usuario set(nome,email,ativo,senha,departamento_id,tipo_acesso_id)=($1,$2,$3,$4,$5,$6) where id=$7 returning *",[
         data.nome,
         data.email,

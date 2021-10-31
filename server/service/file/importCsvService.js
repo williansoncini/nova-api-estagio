@@ -9,12 +9,10 @@ exports.importXlsxIntoTable = async function(data){
     const xlsxFilePath = xlsxBasePath+nameXlsxFile
 
     const matrix = await xlsxService.makeMatrixWithDataXlsx(xlsxFilePath)
-    console.log(matrix)
 
     const nameCsvFile = csvService.createCsvFromMatrix(matrix)
     const csvBasePath = String(path.join(__dirname,'../csvFiles/'))
     const csvFilePath = csvBasePath+nameCsvFile
-    console.log(csvFilePath)
     
     return await importCsvData.importCsvIntoTable(csvFilePath, tableName)
 

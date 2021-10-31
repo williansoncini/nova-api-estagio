@@ -35,8 +35,6 @@ exports.deleteTable = function(tableName){
 }
 
 exports.findTableAndColumnsFromTableName = function(tableName){
-    // console.log(`SELECT column_name as nome, udt_name as tipo_coluna FROM information_schema.columns where table_schema='public' and table_name='${tableName}'`)
-    // return databaseInformation.query(`SELECT table_name as table, column_name as nome, udt_name as tipo_coluna FROM information_schema.columns where table_schema='public' and table_name='${tableName}'`)
     return databaseInformation.query(`SELECT column_name as nome, udt_name as tipo_coluna FROM information_schema.columns where table_schema='public' and table_name='${tableName}'`)
 }
 

@@ -18,5 +18,4 @@ test.only('criar tabela no outro banco de dados', async function(){
     const tabela = new Tabela(table,columns)
    
     const statement = await dbExcelService.createTable(tabela)
-    console.log(statement)
 })

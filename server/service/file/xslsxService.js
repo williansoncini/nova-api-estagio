@@ -80,7 +80,6 @@ const importXlsxIntoTable = async function(xlsxFilePath){
     for(let i=0; i < cells.length; i++){
         rowNumber = cells[i]._row._number -1
         columnNumber = cells[i]._column._number -1
-        console.log(cells[i].value)
     }
 }
 exports.importXlsxIntoTable = importXlsxIntoTable

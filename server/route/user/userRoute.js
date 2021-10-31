@@ -51,8 +51,18 @@ router.put('/users/:id', authMiddleware, async function (req, res){
 });
 
 router.delete('/users/:id', authMiddleware, async function (req, res){
-    const response = await userService.deleteUser(req.params.id);
-    res.json(response);
+    try {
+        const id = req.params.id;
+        if (id == {})
+            return res.status(400).json({'error':'Id vazio!'})
+        const response = await userService.deleteUser(id);
+        if (response.status !== 200)
+            return res.status(response.status).json({'error': response.error})
+        return res.status(response.status).json({'success':response.success, 'data':response.data})
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({'error':'Falha ao cadastrar usuário!'})
+    }
 });
 
 router.get('/users/mail/:email', authMiddleware,async function (req, res){
