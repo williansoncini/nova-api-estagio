@@ -18,8 +18,6 @@ router.get('/users/:id', authMiddleware, async function (req, res){
     } catch (error) {
         return res.status(400).json({'error':'Falha ao buscar usuário!'})
     }
-    
-    return res.json(user);
 });
 
 router.post('/users', async function (req, res){
@@ -28,7 +26,6 @@ router.post('/users', async function (req, res){
         if (user == {})
             return res.status(400).json({'error':'Dados vazios'})
         const response = await userService.saveUser(user);
-        console.log(response)
         if (response.status !== 200)
             return res.status(response.status).json({'error': response.error})
         return res.status(response.status).json({'success':response.success, 'data':response.data})
@@ -39,9 +36,18 @@ router.post('/users', async function (req, res){
 });
 
 router.put('/users/:id', authMiddleware, async function (req, res){
-    const data = req.body;
-    const response = await userService.updateUser(req.params.id,data);
-    res.json(response);
+    try {
+        const user = req.body;
+        if (user == {})
+            return res.status(400).json({'error':'Dados vazios'})
+        const response = await userService.updateUser(req.params.id,user);
+        if (response.status !== 200)
+            return res.status(response.status).json({'error': response.error})
+        return res.status(response.status).json({'success':response.success, 'data':response.data})
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({'error':'Falha ao cadastrar usuário!'})
+    }
 });
 
 router.delete('/users/:id', authMiddleware, async function (req, res){

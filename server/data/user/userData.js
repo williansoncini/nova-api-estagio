@@ -1,15 +1,16 @@
 const database = require('../../infra/database/database_system');
 
 exports.getUsers = function () {
-    return database.query('SELECT * FROM USUARIO');
+    return database.query(`select * from get_users`);
 };
 
 exports.saveUser = function(user){
-    return database.one('insert into usuario (nome,email,ativo,senha) values ($1,$2,$3,$4) returning *',[
+    return database.one('insert into usuario (nome,email,senha,departamento_id, tipo_acesso_id) values ($1,$2,$3,$4,$5) returning *',[
         user.nome,
         user.email,
-        user.ativo,
-        user.senha
+        user.senha,
+        user.departamento_id,
+        user.tipo_acesso_id
     ]);
 };
 
@@ -18,16 +19,19 @@ exports.deleteUser = function(id){
 };
 
 exports.getUser = function(id){
-    return database.oneOrNone('select * from usuario where id = $1',[id]);
+    return database.oneOrNone(`select * from get_users where id='${id}'`);
 }
 
-exports.updateUser = function(id, data){
-    return database.oneOrNone("update usuario set(nome,email,ativo,senha,departamento_id)=($1,$2,$3,$4,$5) where id=$6 returning *",[
+exports.updateUser = function(id,data){
+    console.log('estou aqui')
+    console.log(data)
+    return database.oneOrNone("update usuario set(nome,email,ativo,senha,departamento_id,tipo_acesso_id)=($1,$2,$3,$4,$5,$6) where id=$7 returning *",[
         data.nome,
         data.email,
         data.ativo,
         data.senha,
         data.departamento_id,
+        data.tipo_acesso_id,
         id])
 }
 
