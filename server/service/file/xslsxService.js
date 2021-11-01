@@ -20,7 +20,7 @@ exports.makeMatrixWithDataXlsx = async function(filePath){
 
     } catch (error) {
         console.log(error)  
-        return res.status(500).json('Erro em makeMatrixWithDataXlsx')     
+        return res.status(400).json('Erro em makeMatrixWithDataXlsx')     
     }
 }
 

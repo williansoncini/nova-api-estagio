@@ -3,7 +3,7 @@ const fs = require('fs');
 
 exports.saveFileAndReturnPath = async function(file){
     const uploadFile = file
-    const uploadPath = String(path.join(__dirname,'../upload/')) + uploadFile.name
+    const uploadPath = String(path.join(__dirname,'../../upload/')) + uploadFile.name
 
     await uploadFile.mv(uploadPath, function(err){
         if (err){
