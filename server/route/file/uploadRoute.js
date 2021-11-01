@@ -23,14 +23,20 @@ router.post('/upload/excel', authMiddleware, async function (req, res) {
     try {
         const filePath = savedFile.filePath
         const fileName = savedFile.fileName
-        const matrix = await xlsxService.makeMatrixWithDataXlsx(filePath)
-        const data = {
-            fileName: fileName,
-            matrix: matrix
-        }
+        const header = await xlsxService.getColumnsFromXlsx(filePath)
+        console.log('header')
+        console.log(header)
+        const body = await xlsxService.getBodyFromXlsx(filePath)
+        console.log('body')
+        console.log(body)
+        // const matrix = await xlsxService.makeMatrixWithDataXlsx(filePath)
+        // const data = {
+        //     fileName: fileName,
+        //     matrix: matrix
+        // }
         return res.status(200).json({
             'success':'Arquivo salvo com sucesso!',
-            'data':data
+            // 'data':data
         })
     } catch (error) {
         console.log(error)
