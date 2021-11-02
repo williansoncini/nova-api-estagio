@@ -33,7 +33,7 @@ exports.alterColumn = async function(id,data){
 }
 
 exports.deleteColumn = async function(id){
-    return database.oneOrNone("update coluna set excluido='1' where id=$1 returning *" , [id]);
+    return database.oneOrNone("delete from coluna where id=$1 returning *" , [id]);
 }
 
 exports.saveColumnsInDataSystem = async function(table){

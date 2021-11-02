@@ -2,7 +2,7 @@ DROP TABLE IF exists CATEGORIA CASCADE;
 create table if not exists CATEGORIA (
 	ID SERIAL primary key,
 	DESCRICAO VARCHAR (70) not NULL,
-	ATIVA BIT NOT NULL
+	ATIVA BIT NOT NULL default '1'
 );
 
 drop table if exists tabela CASCADE;
@@ -10,8 +10,18 @@ create table if not exists tabela(
 	ID SERIAL primary key,
 	NOME VARCHAR (70) not NULL,
 	ATIVA BIT NOT NULL DEFAULT '1',
-	CATEGORIA_ID INT DEFAULT NULL,
+	CATEGORIA_ID INT not null,
 	FOREIGN KEY (CATEGORIA_ID) references CATEGORIA(ID)
+);
+
+drop table if exists coluna;
+CREATE TABLE COLUNA(
+	ID SERIAL primary KEY,
+	NOME VARCHAR(255),
+	VAZIO BIT NOT NULL,
+	TIPO_COLUNA VARCHAR(30),
+	ID_TABELA INT NOT NULL,
+	FOREIGN KEY (ID_TABELA) REFERENCES TABELA(ID)
 );
 
 DROP TABLE IF EXISTS PLANILHA_EXCEL CASCADE;
@@ -165,6 +175,26 @@ on usuario.tipo_acesso_id = tipo_acesso.id
 
 order by usuario.id;
 
+create view get_tables
+as
+select
+	tabela.id,
+	tabela.nome,
+	tabela.ativa,
+	case 
+		when (tabela.ativa = '1') then'Ativo'
+		else 'Desativado'
+	end as ativo_descricao, 
+	tabela.categoria_id,
+	categoria.descricao as categoria_descricao
+from
+	tabela
+
+inner join categoria
+on tabela.categoria_id = categoria.id;
+
 /*DEFAULT DATA*/
 insert into TIPO_ACESSO(descricao) values ('Usuario'),('Supervisor'),('administrador');
 insert into DEPARTAMENTO(descricao) values ('Administração'),('Gerencia'),('Financeiro');
+insert into CATEGORIA(descricao) values ('Vendas');
+insert into usuario(nome, email, ativo, senha, departamento_id, tipo_acesso_id) values('teste','teste@teste.com','1','$2b$10$ukia9/3pO9VI6HOOQqpVu.T2Fq4.wGowA60MuHllzNkSY9oXNaqNS',1,1);

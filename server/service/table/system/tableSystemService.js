@@ -7,15 +7,17 @@ exports.saveTable = async function(table){
     try {
         existsTable = await tableDataSystem.getTableByNameOrNull(tableName)
     } catch (error) {
+        console.log(error)
         return {'status':400,'error':'Não foi possível consultar a tabela no banco de dados'}
     }
     if(existsTable == null){
         try {
             table.ativa = '1'
             await tableDataSystem.saveTable(table)
-            return {'status':200,'sucess':`A tabela ${tableName} foi salva com sucesso!`}
+            return {'status':200,'success':`A tabela ${tableName} foi salva com successo!`}
         } catch (error) {
-            return {'status':400,'sucess':`Falha ao salvar a tabela '${tableName}'!`}
+            console.log(error)
+            return {'status':400,'success':`Falha ao salvar a tabela '${tableName}'!`}
         }
     }
     else
@@ -27,10 +29,11 @@ exports.findTableById = async function(id){
     try {
         existsTable = await tableDataSystem.findTableById(id)
     } catch (error) {
+        console.log(error)
         return {'status':400,'error':'Não foi possível encontrar a tabela no banco de dados'}
     }
     if(existsTable != null){    
-        return {'status':200,'sucess':'Tabela encontrada!', 'table':existsTable.nome}
+        return {'status':200,'success':'Tabela encontrada!', 'table':existsTable.nome}
     }
 }
 
@@ -39,13 +42,15 @@ exports.deleteTable = async function(id){
     try {
         existsTable = await tableDataSystem.findTableById(id)
     } catch (error) {
+        console.log(error)
         return {'status':400,'error':'Não foi possível consultar a tabela no banco de dados'}
     }
     if(existsTable != null){
         try {
             await tableDataSystem.deleteTable(id); 
-            return {'status':200,'sucess':`A tabela '${existsTable.nome}' foi deletada com sucesso!`, 'tableName':existsTable.nome}
+            return {'status':200,'success':`A tabela '${existsTable.nome}' foi deletada com successo!`, 'tableName':existsTable.nome}
         } catch (error) {
+            console.log(error)
             return {'status':400,'error':`A tabela '${existsTable.nome}' não pode ser deletada`}
         }
     }
@@ -64,18 +69,20 @@ exports.alterTable = async function(id, data){
     // if (oldName != newName){
     try {
         tableDataSystem.alterTable(id,data)
-        return{'status':200,'sucess':'Tabela alterada com sucesso!','oldTableName': oldName}
+        return{'status':200,'success':'Tabela alterada com successo!','oldTableName': oldName}
     } catch (error) {
+        console.log(error)
         return{'status':400,'error':'Erro ao alterar a tabela no sistema'}
     }
     // }
 }
 
-exports.getActiveTables = async function(){
+exports.geTables = async function(){
     try {
-        const tables = await tableDataSystem.getActiveTables();
-        return {'status':200,'sucess':'Tabelas consultadas com sucesso!', 'tables':tables}
+        const tables = await tableDataSystem.getTables();
+        return {'status':200,'success':'Tabelas consultadas com successo!', 'tables':tables}
     } catch (error) {
+        console.log(error)
         return {'status':400,'error':'Não foi possível coletar todas as tabelas'}
     }
 }

@@ -10,7 +10,6 @@ router.post('/upload/excel', authMiddleware, async function (req, res) {
     if (!req.files || Object.keys(req.files).lenght === 0)
         return res.status(400).send('Nenhum arquivo encontrado');
 
-    // console.log(req.files.excelFile)
     let savedFile = {}
     try {
         savedFile = await uploadFileService.saveFileAndReturnPath(req.files.excelFile)
@@ -23,20 +22,15 @@ router.post('/upload/excel', authMiddleware, async function (req, res) {
     try {
         const filePath = savedFile.filePath
         const fileName = savedFile.fileName
-        const header = await xlsxService.getColumnsFromXlsx(filePath)
-        console.log('header')
-        console.log(header)
-        const body = await xlsxService.getBodyFromXlsx(filePath)
-        console.log('body')
-        console.log(body)
-        // const matrix = await xlsxService.makeMatrixWithDataXlsx(filePath)
-        // const data = {
-        //     fileName: fileName,
-        //     matrix: matrix
-        // }
+        const HeaderAndBody = await xlsxService.getHeaderAndCellsFromXlsx(filePath)
+        
+        const data = {
+            fileName: fileName,
+            data: HeaderAndBody
+        }
         return res.status(200).json({
             'success':'Arquivo salvo com sucesso!',
-            // 'data':data
+            'data':data
         })
     } catch (error) {
         console.log(error)

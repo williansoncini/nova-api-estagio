@@ -25,7 +25,6 @@ exports.login = async function (email, password) {
         const token = jwt.sign({ user: userLogin.id });
         delete userLogin.senha
         userLogin.token = token;
-        console.log(userLogin)
         return { 'status': 200, 'success': 'Login efetuado com sucesso!', 'data': userLogin }
     } catch (error) {
         return { 'status': 400, 'error': 'Falha ao logar!' }

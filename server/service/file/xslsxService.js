@@ -54,18 +54,6 @@ function getCellsFromRows(rowsWithCells) {
     return cells
 }
 
-// function getCellsFromRowsWithOutColumns(rowsWithCells) {
-//     let cells = []
-//     for (let i = 1; i < rowsWithCells.length; i++) {
-//         let realCells = rowsWithCells[i]
-//         for (let o = 0; o < realCells.length; o++) {
-//             if (realCells[o])
-//                 cells.push(realCells[o].value)
-//         }
-//     }
-//     return cells
-// }
-
 function fillMatrixWithData(cells, matrizValues) {
     for (let i = 0; i < cells.length; i++) {
         rowNumber = cells[i]._row._number - 1
@@ -157,3 +145,29 @@ const getBodyFromXlsx = async function(filePath){
 
 exports.getBodyFromXlsx = getBodyFromXlsx
 
+const getHeaderAndCellsFromXlsx = async function(filePath){
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = await workbook.xlsx.readFile(filePath)
+        const firtsPlanExcel = worksheet.worksheets[0].name
+        const firstWorksheet = workbook.getWorksheet(firtsPlanExcel)
+        const rows = firstWorksheet._rows
+        const rowsWithCells = getValidRowsWithCells(rows)
+        const header = getColumnsFromCells(rowsWithCells[0])
+
+        const rowsLength = rows.length 
+        const columnsLength = rows[0]._cells.length
+        const matrixValues = makeMatrixWithNullValues((rowsLength) -1, columnsLength)
+        const cells = getCellsFromRows(rowsWithCells.slice(1))
+        const matrix = fillMatrixWithDataWithOutHeader(cells, matrixValues)
+
+        return {
+            header:header,
+            body: matrix
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+exports.getHeaderAndCellsFromXlsx = getHeaderAndCellsFromXlsx

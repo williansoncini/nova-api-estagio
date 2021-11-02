@@ -12,7 +12,7 @@ exports.savedepartament = function(departament){
 };
 
 exports.deletedepartament = function(id){
-    return database.oneOrNone("update departamento set excluido='1' where id=$1 returning *" , [id]);
+    return database.oneOrNone("delete from departamento where id=$1 returning *" , [id]);
 };
 
 exports.getdepartament = function(id){

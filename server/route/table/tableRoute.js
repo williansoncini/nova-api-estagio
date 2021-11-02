@@ -5,18 +5,20 @@ const tableInformationService = require('../../service/table/data/tableInformati
 const {authMiddleware} = require('../../service/user/authService')
 
 router.post('/tables/', authMiddleware, async function (req, res){
+    
     const data = req.body;
     let responseInformation = {}
     responseInformation = await tableInformationService.createTable(data)
+    console.log(responseInformation)
 
     if (responseInformation.status == 400)
         return res.status(responseInformation.status).json(responseInformation.error);
     else{
         const responseSystem = await tableSystemService.saveTable(data)
-        if (responseSystem.status == 400){
+        if (responseSystem.status !== 200){
             return res.status(responseSystem.status).json(responseSystem.error);
         }else{
-            return res.status(responseSystem.status).json(responseSystem.sucess)
+            return res.status(responseSystem.status).json(responseSystem.success)
         }
     }
 });
@@ -32,6 +34,7 @@ router.put('/tables/:id', authMiddleware, async function(req, res){
         if (responseSystem.error != null)
             return res.status(responseSystem.status).json(responseSystem.error) 
         } catch (error) {
+            console.log(error)
             return {'status':400,'error':'Falha ao alterar a tabela!'}
         }
         
@@ -42,6 +45,7 @@ router.put('/tables/:id', authMiddleware, async function(req, res){
         if (responseSystem.error != null)
             return res.status(responseInformation.status).json(responseInformation.error) 
     } catch (error) {
+        console.log(error)
         return {'status':400,'error':'Falha ao alterar a tabela!'}
     }
 
@@ -81,25 +85,18 @@ router.get('/tables/:id', authMiddleware, async function(req, res){
 })
 
 router.get('/tables/', authMiddleware, async function(req, res){
-    //consultar todos os nomes no banco de dadoas do sistema
-    const responseSystem = await tableSystemService.getActiveTables();
-    if (responseSystem.erro != null)
-        return res.status(responseSystem.status).json(responseSystem.error) 
+    const response = await tableSystemService.geTables();
+    if (response.error != null)
+        return res.status(response.status).json(response.error) 
     
-    const tables = responseSystem.tables
-    if (tables.length == 0)
-        return res.status(responseSystem.status).json(responseSystem.error) 
-
-    const responseInformation = await tableInformationService.getTablesAndColummns(tables);
-
-    if (responseInformation.error != null)
-        return res.status(responseInformation.status).json(responseInformation.error) 
-
-    if (responseInformation.status == 200 && responseSystem.status == 200)
-        return res.status(200).json({
-            'sucess': responseInformation.sucess,
-            'table': responseInformation.tables
-        })
+    const tables = response.tables
+    console.log(tables)
+    if (tables == [])
+        return res.status(response.status).json('Não existem tabelas') 
+    return res.status(response.status).json({
+        'success': response.success,
+        'tables': tables
+    })
 })
 
 module.exports = router;

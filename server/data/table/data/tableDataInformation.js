@@ -31,7 +31,7 @@ const makeStatementCreateTable = function (table){
 
 exports.deleteTable = function(tableName){
     // AQUI EM VEZ DE DELETAR, É NECESSÁRIO COLOCAR UM HASH
-    return databaseInformation.query(`ALTER TABLE ${tableName} RENAME TO ${tableName + '_deletedTable'}`)
+    return databaseInformation.query(`DROP TABLE IF EXISTS ${tableName} CASCADE;`)
 }
 
 exports.findTableAndColumnsFromTableName = function(tableName){

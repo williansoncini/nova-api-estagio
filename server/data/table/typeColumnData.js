@@ -11,7 +11,7 @@ exports.savetypeColumn = function(typeColumn){
 };
 
 exports.deletetypeColumn = function(id){
-    return database.oneOrNone("update tipocoluna set excluido='1' where id=$1 returning *" , [id]);
+    return database.oneOrNone("delete from tipocoluna where id=$1 returning *" , [id]);
 };
 
 exports.gettypeColumn = function(id){

@@ -6,6 +6,7 @@ exports.createTable = async function(table){
     try {
         existsTable = await getTableByNameOrNull(tableName)
     } catch (error) {
+        console.log(error)
         return {'status':400,'error':'Falha ao consultar tabela no banco de dados de informações'}
     }
     
@@ -14,6 +15,7 @@ exports.createTable = async function(table){
             await tableDataInformation.createTable(table)
             return {'status':200,'sucess':`A tabela ${tableName} foi criada com sucesso!`}
         } catch (error) {
+            console.log(error)
             return {'status':400,'error':`Falha ao criar a tabela ${tableName}!`}
         }
     }
@@ -26,6 +28,7 @@ exports.alterTable = async function(data, oldTableName){
     try {
         existsTable = await getTableByNameOrNull(oldTableName)
     } catch (error) {
+        console.log(error)
         return {'status':400,'error':'Falha ao consultar tabela no banco de dados de informações'}
     }
 
@@ -51,6 +54,7 @@ exports.alterTable = async function(data, oldTableName){
                 }
             }
         } catch (error){
+            console.log(error)
             return {'status':400,"error":'Falha ao capturar as colunas da tabela!'}
         }
         const newName = data.nome

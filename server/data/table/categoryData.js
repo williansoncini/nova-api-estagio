@@ -12,7 +12,7 @@ exports.savecategory = function(category){
 };
 
 exports.deletecategory = function(id){
-    return database.oneOrNone("update categoria set excluido='1' where id=$1 returning *" , [id]);
+    return database.oneOrNone("delete from categoria where id=$1;" , [id]);
 };
 
 exports.getcategory = function(id){
