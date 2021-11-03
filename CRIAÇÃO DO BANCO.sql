@@ -175,6 +175,7 @@ on usuario.tipo_acesso_id = tipo_acesso.id
 
 order by usuario.id;
 
+drop view if exists get_tables;
 create view get_tables
 as
 select
@@ -192,6 +193,22 @@ from
 
 inner join categoria
 on tabela.categoria_id = categoria.id;
+
+drop view if exists get_columns;
+create view get_columns
+as
+select
+	coluna.id,
+	coluna.nome,
+	coluna.vazio,
+	case
+		when (coluna.vazio = '1') then 'Sim'
+		else 'Não'
+	end as vazio_descricao,
+	coluna.tipo_coluna,
+	coluna.id_tabela
+from
+	coluna;
 
 /*DEFAULT DATA*/
 insert into TIPO_ACESSO(descricao) values ('Usuario'),('Supervisor'),('administrador');

@@ -11,15 +11,15 @@ exports.createColumn = async function(tableId, column){
 }
 
 exports.getAllColumns = async function(){
-    return database.query('select * from coluna');
+    return database.query('select * from get_columns');
 }
 
 exports.getColumnById = async function(id){
-    return database.one('select * from coluna where id = $1',[id]);
+    return database.one('select * from get_columns where id = $1',[id]);
 }
 
 exports.getColumnByIdTable = async function(id){
-    return database.query('select * from coluna where id_tabela = $1',[id]);
+    return database.query('select * from get_columns where id_tabela = $1',[id]);
 }
 
 exports.alterColumn = async function(id,data){
