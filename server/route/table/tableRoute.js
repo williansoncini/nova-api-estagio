@@ -6,20 +6,15 @@ const { authMiddleware } = require('../../service/user/authService')
 
 router.post('/tables/', authMiddleware, async function (req, res) {
     const data = req.body;
-
     let responseInformation = {}
     responseInformation = await tableInformationService.createTable(data)
-
-    if (responseInformation.status == 400)
+    if (responseInformation.status !== 200)
         return res.status(responseInformation.status).json(responseInformation.error);
-    else {
-        const responseSystem = await tableSystemService.saveTable(data)
-        if (responseSystem.status !== 200) {
-            return res.status(responseSystem.status).json(responseSystem.error);
-        } else {
-            return res.status(responseSystem.status).json(responseSystem.success)
-        }
-    }
+
+    const responseSystem = await tableSystemService.saveTable(data)
+    if (responseSystem.status !== 200)
+        return res.status(responseSystem.status).json(responseSystem.error);
+    return res.status(responseSystem.status).json({ 'success': responseSystem.success, 'data': responseSystem.data })
 });
 
 router.put('/tables/:id', authMiddleware, async function (req, res) {
@@ -27,28 +22,28 @@ router.put('/tables/:id', authMiddleware, async function (req, res) {
     const data = req.body;
 
     let responseSystem = {}
-
     try {
         responseSystem = await tableSystemService.alterTable(id, data)
-        if (responseSystem.error != null)
+        if (responseSystem.status == 400)
             return res.status(responseSystem.status).json(responseSystem.error)
-    } catch (error) {
-        console.log(error)
-        return { 'status': 400, 'error': 'Falha ao alterar a tabela!' }
-    }
-    
-    let responseInformation = {}
-    try {
-        let oldTableName = responseSystem.oldTableName
-        responseInformation = await tableInformationService.alterTable(data, oldTableName)
-        if (responseInformation.error != null)
-            return res.status(responseInformation.status).json(responseInformation.error)
+        else if (responseSystem.status == 304)
+            return res.status(responseSystem.status).json(responseSystem.success)
     } catch (error) {
         console.log(error)
         return { 'status': 400, 'error': 'Falha ao alterar a tabela!' }
     }
 
-    return { 'status': 200, 'sucess': `A tabela '${oldTableName}' foi alterada com sucesso!` }
+    let responseInformation = {}
+    try {
+        let oldTableName = responseSystem.data.oldTableName
+        responseInformation = await tableInformationService.alterTable(data, oldTableName)
+        if (responseInformation.error)
+            return res.status(responseInformation.status).json(responseInformation.error)
+        return res.status(responseInformation.status).json(responseSystem.success)
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'error': 'Falha ao alterar a tabela!' }
+    }
 });
 
 router.delete('/tables/:id', authMiddleware, async function (req, res) {
@@ -58,8 +53,6 @@ router.delete('/tables/:id', authMiddleware, async function (req, res) {
     let tableName = ''
     if (responseSystem.error != null)
         return res.status(responseSystem.status).json(responseSystem.error)
-    // else
-    // return res.status(responseSystem.status).json(responseSystem.sucess)
 
     tableName = responseSystem.tableName
     const responseInformation = tableInformationService.deleteTableByName(tableName)

@@ -1,30 +1,25 @@
 const tableDataSystem = require('../../../data/table/system/tableDataSystem');
-const columnsService = require('../columnService')
+const columnsService = require('./columnSystemService')
+const categoryService = require('../categoryService')
 
 exports.saveTable = async function (table) {
-    const tableName = table.nome
     let existsTable = {}
     try {
-        existsTable = await tableDataSystem.getTableByNameOrNull(tableName)
+        existsTable = await tableDataSystem.getTableByNameOrNull(table.nome)
+        if (existsTable != null)
+            return { 'status': 400, 'error': `Falha ao cadastrar! A tabela '${table.nome}' já existe!` }
     } catch (error) {
         console.log(error)
         return { 'status': 400, 'error': 'Não foi possível consultar a tabela no banco de dados' }
     }
-    if (existsTable == null) {
-        try {
-            table.ativa = '1'
-            const createdTable = await tableDataSystem.saveTable(table)
-            table.colunas.map(async (column) => {
-                await columnsService.createColumn(createdTable.id, column)
-            })
-            return { 'status': 200, 'success': `A tabela ${tableName} foi salva com successo!` }
-        } catch (error) {
-            console.log(error)
-            return { 'status': 400, 'success': `Falha ao salvar a tabela '${tableName}'!` }
-        }
+
+    try {
+        const createdTable = await tableDataSystem.saveTable(table)
+        return { 'status': 200, 'success': `A tabela ${table.nome} foi salva com successo!`, 'data': createdTable }
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'success': `Falha ao salvar a tabela '${table.nome}'!` }
     }
-    else
-        return { 'status': 400, 'error': `Falha ao cadastrar! A tabela '${tableName}' já existe!` }
 }
 
 exports.findTableById = async function (id) {
@@ -86,16 +81,38 @@ exports.alterTable = async function (id, data) {
         return { 'status': 400, 'error': 'Erro ao procurar a tabela!' }
     }
 
-    const oldName = table.nome
-    
+    if (table.nome === data.nome && table.ativa === data.ativa && table.categoria_id === data.categoria_id)
+        return { 'status': 304, 'success': 'Nada a ser alterado!' }
+
     try {
-        tableDataSystem.alterTable(id, data)
-        return { 'status': 200, 'success': 'Tabela alterada com successo!', 'oldTableName': oldName }
+        if (data.nome != table.nome){
+        const existsTable = await tableDataSystem.getTableByNameOrNull(data.nome)
+        if (existsTable != null)
+            return { 'status': 400, 'error': 'Nome de tabela já existente!' }
+        }    
+    } catch (error) {
+        return { 'status': 400, 'error': 'Erro ao procurar a tabela!' }
+    }
+
+    try {
+        const existentCategory = await categoryService.getcategory(data.categoria_id)
+        if (existentCategory == null)
+            return {'status':400, 'error':'Categoria invalida!'}
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'error': 'Erro ao procurar categoria!' }
+    }
+
+    try {
+        const updatedTable = tableDataSystem.alterTable(id, data)
+        return { 'status': 200, 'success': 'Tabela alterada com successo!', 'data': {
+            'oldTableName':table.nome,
+            'newData':updatedTable
+        } }
     } catch (error) {
         console.log(error)
         return { 'status': 400, 'error': 'Erro ao alterar a tabela no sistema' }
     }
-    // }
 }
 
 exports.geTables = async function () {

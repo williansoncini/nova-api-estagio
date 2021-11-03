@@ -1,3 +1,10 @@
+DROP TABLE IF EXISTS TIPO_COLUNA CASCADE;
+CREATE TABLE IF NOT EXISTS TIPO_COLUNA(
+	ID SERIAL PRIMARY KEY,
+	DESCRICAO VARCHAR NOT NULL,
+	VALOR VARCHAR NOT NULL
+);
+
 DROP TABLE IF exists CATEGORIA CASCADE;
 create table if not exists CATEGORIA (
 	ID SERIAL primary key,
@@ -8,20 +15,21 @@ create table if not exists CATEGORIA (
 drop table if exists tabela CASCADE;
 create table if not exists tabela(
 	ID SERIAL primary key,
-	NOME VARCHAR (70) not NULL,
+	NOME VARCHAR (70) not NULL UNIQUE,
 	ATIVA BIT NOT NULL DEFAULT '1',
 	CATEGORIA_ID INT not null,
 	FOREIGN KEY (CATEGORIA_ID) references CATEGORIA(ID)
 );
 
-drop table if exists coluna;
+drop table if exists coluna CASCADE;
 CREATE TABLE COLUNA(
 	ID SERIAL primary KEY,
 	NOME VARCHAR(255),
 	VAZIO BIT NOT NULL,
-	TIPO_COLUNA VARCHAR(30),
-	ID_TABELA INT NOT NULL,
-	FOREIGN KEY (ID_TABELA) REFERENCES TABELA(ID)
+	TIPO_COLUNA_ID INT NOT NULL,
+	FOREIGN KEY (TIPO_COLUNA_ID) REFERENCES TIPO_COLUNA(ID),
+	TABELA_ID INT NOT NULL,
+	FOREIGN KEY (TABELA_ID) REFERENCES TABELA(ID)
 );
 
 DROP TABLE IF EXISTS PLANILHA_EXCEL CASCADE;
@@ -205,13 +213,21 @@ select
 		when (coluna.vazio = '1') then 'Sim'
 		else 'Não'
 	end as vazio_descricao,
-	coluna.tipo_coluna,
-	coluna.id_tabela
+	coluna.tipo_coluna_id,
+	tipo_coluna.descricao as tipo_coluna_descricao,
+	tipo_coluna.valor as tipo_coluna_valor,
+	coluna.tabela_id
 from
-	coluna;
+	coluna
+
+inner join tipo_coluna
+on coluna.tipo_coluna_id = tipo_coluna.id;
 
 /*DEFAULT DATA*/
 insert into TIPO_ACESSO(descricao) values ('Usuario'),('Supervisor'),('administrador');
 insert into DEPARTAMENTO(descricao) values ('Administração'),('Gerencia'),('Financeiro');
-insert into CATEGORIA(descricao) values ('Vendas');
+insert into CATEGORIA(descricao) values ('Vendas'),('Comercial');
 insert into usuario(nome, email, ativo, senha, departamento_id, tipo_acesso_id) values('teste','teste@teste.com','1','$2b$10$ukia9/3pO9VI6HOOQqpVu.T2Fq4.wGowA60MuHllzNkSY9oXNaqNS',1,1);
+insert into tipo_coluna(descricao, valor) values ('Inteiro', 'INT'), ('Texto','VARCHAR'), ('Número','DECIMAL');
+insert into tabela(nome, categoria_id) values ('Primeira', 1), ('Segunda',2);
+insert into coluna(nome, vazio, tipo_coluna_id, tabela_id) values ('primeira','1',1,1),('segunda','0',2,1),('primeira','1',1,2);

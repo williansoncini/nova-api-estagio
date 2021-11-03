@@ -13,7 +13,7 @@ exports.deleteTable = function(id){
 }
 
 exports.alterTable = function(id, data){
-    return databaseSystem.one('update tabela set(nome,ativa,categoria_id,ativa)=($1,$2,$3) where id=$4 returning *',[data.nome,data.ativa,data.categoria_id,id]);
+    return databaseSystem.query('update tabela set(nome,ativa,categoria_id)=($1,$2,$3) where id=$4',[data.nome,data.ativa,data.categoria_id,id]);
 }
 
 exports.getTables = function(){

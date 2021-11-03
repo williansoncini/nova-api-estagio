@@ -1,84 +1,43 @@
 const tableDataInformation = require('../../../data/table/data/tableDataInformation');
-const { checkDuplicateNames } = require('../columnService');
+const { checkDuplicateNames } = require('../system/columnSystemService');
 
 exports.createTable = async function (table) {
     let existsTable = {}
-    const tableName = table.nome
     try {
-        existsTable = await getTableByNameOrNull(tableName)
+        existsTable = await getTableByNameOrNull(table.nome)
+        if (existsTable !== null)
+            return { 'status': 400, 'error': 'Tabela já existente' }
     } catch (error) {
-        console.log(error)
         return { 'status': 400, 'error': 'Falha ao consultar tabela no banco de dados de informações' }
     }
 
-    const duplicateColumns = checkDuplicateNames(table.colunas)
-    if (duplicateColumns)
-        return { 'status': 400, 'error': 'Colunas repetidas!' }
-
-    if (existsTable == null) {
-        try {
-            await tableDataInformation.createTable(table)
-            return { 'status': 200, 'sucess': `A tabela ${tableName} foi criada com sucesso!` }
-        } catch (error) {
-            console.log(error)
-            return { 'status': 400, 'error': `Falha ao criar a tabela ${tableName}!` }
-        }
-    }
-    else {
-        return { 'status': 400, 'error': `A tabela '${tableName}' já existe` }
+    try {
+        await tableDataInformation.createTable(table)
+        return { 'status': 200, 'success': `A tabela ${table.nome} foi criada com successo!` }
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'error': `Falha ao criar a tabela ${table.nome}!` }
     }
 }
 
 exports.alterTable = async function (data, oldTableName) {
     try {
         existsTable = await tableDataInformation.getTableNameFromName(oldTableName)
+        if (existsTable == null)
+            return { 'status': 200, 'error': 'Tabela não encontrada no banco de dados' }
     } catch (error) {
         console.log(error)
         return { 'status': 400, 'error': 'Falha ao consultar tabela no banco de dados de informações' }
     }
 
-    const duplicateColumns = checkDuplicateNames(data.colunas)
-    if (duplicateColumns)
-        return { 'status': 400, 'error': 'Colunas repetidas!' }
+    if (oldTableName == data.nome)
+        return { 'status': 200, 'success': `Tabela alterada com successo!` }
 
-    if (existsTable != null) {
-        try {
-            const oldColumns = await tableDataInformation.findTableAndColumnsFromTableName(oldTableName)
-
-            // if (oldColumns.length != data.colunas.length)
-            //     return { 'status': 400, 'error': 'Quantidade de colunas diferentes!' }
-
-            // const duplicateColumn = checkExistsDuplicateColumns(data.colunas)
-            // if (duplicateColumn)
-            //     return {'status':400,'error':'Colunas duplicatas'}
-
-            for (let i = 0; i < oldColumns.length; i++) {
-                const oldColumn = oldColumns[i]
-                const newColumn = data.colunas[i]
-                if (oldColumn.tipo_coluna != newColumn.tipo_coluna) {
-                    await tableDataInformation.alterTypeColumn(oldTableName, oldColumn.nome, newColumn.tipo_coluna)
-                }
-                if (oldColumn.nome != newColumn.nome) {
-                    await tableDataInformation.alterColumnName(oldTableName, oldColumn.nome, newColumn.nome)
-                }
-            }
-        } catch (error) {
-            console.log(error)
-            return { 'status': 400, "error": 'Falha ao capturar as colunas da tabela!' }
-        }
-        const newName = data.nome
-        if (newName != oldTableName) {
-            try {
-                await tableDataInformation.alterNameTable(oldTableName, newName)
-            } catch (error) {
-                return { 'status': 400, "error": 'Falha ao alterar o nome da tablea no banco de dados de informações' }
-            }
-        }
-
-        return { 'status': 200, 'sucess': `Tabela alterada com sucesso!` }
-    }
-    else {
-        return { 'status': 400, 'error': `A tabela '${oldTableName}' não foi encontrada!` }
+    try {
+        await tableDataInformation.alterNameTable(oldTableName, data.nome)
+        return { 'status': 200, 'success': `Tabela alterada com successo!` }
+    } catch (error) {
+        return { 'status': 400, "error": 'Falha ao alterar o nome da tablea no banco de dados de informações' }
     }
 }
 
@@ -99,7 +58,7 @@ exports.deleteTableByName = async function (tableName) {
     if (existsTable != null) {
         try {
             await tableDataInformation.deleteTable(tableName)
-            return { 'status': 200, 'sucess': `A tabela ${tableName} foi deletada com sucesso!` }
+            return { 'status': 200, 'success': `A tabela ${tableName} foi deletada com successo!` }
         } catch (error) {
             return { 'status': 400, 'error': 'Falha ao deletar a tabela no banco de dados de informações!' }
         }
@@ -138,7 +97,7 @@ exports.getTableAndColumnFromId = async function (tableName) {
         }
         if (columns != null) {
             const table = { 'table': existsTable.tablename, 'columns': columns }
-            return { 'status': 200, 'sucess': 'Tabela consultada com sucesso!', 'table': table }
+            return { 'status': 200, 'success': 'Tabela consultada com successo!', 'table': table }
         }
         return { 'status': 400, 'error': 'As colunas da tabela não foram encontradas!' }
     }
@@ -151,7 +110,7 @@ exports.getTablesAndColummns = async function (tables) {
     let responseTable = []
 
     if (tables.length == 0)
-        return { 'status': 200, 'sucess': 'Nenhuma tabela registrada!' }
+        return { 'status': 200, 'success': 'Nenhuma tabela registrada!' }
     try {
         for (let index = 0; index < tables.length; index++) {
             const tableName = tables[index].nome
@@ -172,7 +131,7 @@ exports.getTablesAndColummns = async function (tables) {
         return { 'status': 400, 'error': 'Falha ao formatar tabelas!' }
     }
 
-    return { 'status': 200, 'sucess': 'Tabelas consultadas com sucesso!', 'tables': responseTable }
+    return { 'status': 200, 'success': 'Tabelas consultadas com successo!', 'tables': responseTable }
 }
 
 const formaterTable = function (tablesSystem, tablesInformation) {

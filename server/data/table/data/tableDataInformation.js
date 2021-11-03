@@ -10,8 +10,7 @@ exports.alterNameTable = function(oldName, newName){
 }
 
 exports.createTable = function(table){
-    const statment = makeStatementCreateTable(table)
-    return databaseInformation.query(statment)
+    return databaseInformation.query(`CREATE TABLE ${table.nome} ();`)
 }
 
 const makeStatementCreateTable = function (table){
@@ -38,13 +37,6 @@ exports.findTableAndColumnsFromTableName = function(tableName){
     return databaseInformation.query(`SELECT column_name as nome, udt_name as tipo_coluna FROM information_schema.columns where table_schema='public' and table_name='${tableName}'`)
 }
 
-exports.alterColumnName = function(tableName, oldName, newName){
-    return databaseInformation.query(`ALTER TABLE ${tableName} RENAME COLUMN ${oldName} TO ${newName}`)
-}
-
-exports.alterTypeColumn = function(tableName, columnName, newType){
-    return databaseInformation.query(`ALTER TABLE ${tableName} ALTER COLUMN ${columnName} TYPE ${newType} USING ${columnName}::${newType}`)
-}
 
 exports.getTablesAndColumns = function(){
     return databaseInformation.query("SELECT table_name as table,column_name as nome,udt_name as tipo_coluna from information_schema.columns where table_schema='public' order by 1, ordinal_position")
