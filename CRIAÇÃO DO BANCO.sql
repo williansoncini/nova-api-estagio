@@ -200,7 +200,9 @@ from
 	tabela
 
 inner join categoria
-on tabela.categoria_id = categoria.id;
+on tabela.categoria_id = categoria.id
+
+order by tabela.id;
 
 drop view if exists get_columns;
 create view get_columns
@@ -221,7 +223,9 @@ from
 	coluna
 
 inner join tipo_coluna
-on coluna.tipo_coluna_id = tipo_coluna.id;
+on coluna.tipo_coluna_id = tipo_coluna.id
+
+order by coluna.id;
 
 /*DEFAULT DATA*/
 insert into TIPO_ACESSO(descricao) values ('Usuario'),('Supervisor'),('administrador');
@@ -229,5 +233,5 @@ insert into DEPARTAMENTO(descricao) values ('Administração'),('Gerencia'),('Fi
 insert into CATEGORIA(descricao) values ('Vendas'),('Comercial');
 insert into usuario(nome, email, ativo, senha, departamento_id, tipo_acesso_id) values('teste','teste@teste.com','1','$2b$10$ukia9/3pO9VI6HOOQqpVu.T2Fq4.wGowA60MuHllzNkSY9oXNaqNS',1,1);
 insert into tipo_coluna(descricao, valor) values ('Inteiro', 'INT'), ('Texto','VARCHAR'), ('Número','DECIMAL');
-insert into tabela(nome, categoria_id) values ('Primeira', 1), ('Segunda',2);
-insert into coluna(nome, vazio, tipo_coluna_id, tabela_id) values ('primeira','1',1,1),('segunda','0',2,1),('primeira','1',1,2);
+-- insert into tabela(nome, categoria_id) values ('Primeira', 1), ('Segunda',2);
+-- insert into coluna(nome, vazio, tipo_coluna_id, tabela_id) values ('primeira','1',1,1),('segunda','0',2,1),('primeira','1',1,2);

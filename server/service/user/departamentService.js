@@ -7,7 +7,6 @@ exports.getdepartaments = function (){
 };
 
 exports.savedepartament = async function(departament){
-    // console.log(await bcrypt.hash(departament.senha, 10));
     return departamentData.savedepartament(departament);
 };
 

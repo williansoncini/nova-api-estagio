@@ -75,7 +75,7 @@ exports.alterTable = async function (id, data) {
     try {
         table = await tableDataSystem.findTableById(id)
         if (table == null)
-            return { 'status': 200, 'error': 'Tabela não encontrada!' }
+            return { 'status': 404, 'error': 'Tabela não encontrada!' }
     } catch (error) {
         console.log(error)
         return { 'status': 400, 'error': 'Erro ao procurar a tabela!' }
@@ -85,30 +85,34 @@ exports.alterTable = async function (id, data) {
         return { 'status': 304, 'success': 'Nada a ser alterado!' }
 
     try {
-        if (data.nome != table.nome){
-        const existsTable = await tableDataSystem.getTableByNameOrNull(data.nome)
-        if (existsTable != null)
-            return { 'status': 400, 'error': 'Nome de tabela já existente!' }
-        }    
+        if (data.nome != table.nome) {
+            const existsTable = await tableDataSystem.getTableByNameOrNull(data.nome)
+            if (existsTable != null)
+                return { 'status': 400, 'error': 'Nome de tabela já existente!' }
+        }
     } catch (error) {
+        console.log(error)
         return { 'status': 400, 'error': 'Erro ao procurar a tabela!' }
     }
 
     try {
         const existentCategory = await categoryService.getcategory(data.categoria_id)
         if (existentCategory == null)
-            return {'status':400, 'error':'Categoria invalida!'}
+            return { 'status': 400, 'error': 'Categoria invalida!' }
     } catch (error) {
         console.log(error)
         return { 'status': 400, 'error': 'Erro ao procurar categoria!' }
     }
 
     try {
+
         const updatedTable = tableDataSystem.alterTable(id, data)
-        return { 'status': 200, 'success': 'Tabela alterada com successo!', 'data': {
-            'oldTableName':table.nome,
-            'newData':updatedTable
-        } }
+        return {
+            'status': 200, 'success': 'Tabela alterada com successo!', 'data': {
+                'oldTableName': table.nome,
+                'newData': updatedTable
+            }
+        }
     } catch (error) {
         console.log(error)
         return { 'status': 400, 'error': 'Erro ao alterar a tabela no sistema' }

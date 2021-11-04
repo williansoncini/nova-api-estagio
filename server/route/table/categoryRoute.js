@@ -8,7 +8,6 @@ router.get('/categorys', authMiddleware ,async function (req, res){
         const categorys = await categoryService.getcategorys();    
         return res.status(200).json({'success':'Dados consultados com sucesso!', 'data':categorys})
     } catch (error) {
-        console.log()
         return res.status(400).json({'error':'Falha ao consultar categorias!'})
     }
 });

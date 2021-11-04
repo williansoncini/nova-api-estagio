@@ -24,7 +24,7 @@ router.put('/tables/:id', authMiddleware, async function (req, res) {
     let responseSystem = {}
     try {
         responseSystem = await tableSystemService.alterTable(id, data)
-        if (responseSystem.status == 400)
+        if (responseSystem.status != 200)
             return res.status(responseSystem.status).json(responseSystem.error)
         else if (responseSystem.status == 304)
             return res.status(responseSystem.status).json(responseSystem.success)

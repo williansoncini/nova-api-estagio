@@ -1,6 +1,7 @@
 const columnData = require('../../../data/table/system/columnDataSystem');
 const tableSystemService = require('./tableSystemService')
 
+
 const createColumns = async function (data) {
     try {
         const existentTable = await tableSystemService.findTableById(data.tabela_id)
@@ -46,14 +47,23 @@ exports.getAllColumns = async function () {
     return await columnData.getAllColumns();
 }
 
-exports.getColumnById = async function (id) {
-    return await columnData.getColumnById(id);
+const getColumnById = async function (id) {
+    try {
+        const column = await columnData.getColumnById(id);
+        if (column == null)
+            return { 'status': 404, 'error': 'Coluna não encontrada' }
+        return { 'status': 200, 'success': 'Coluna encontrada com sucesso!', 'data': column }
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'error': 'Falha ao consultar tabela' }
+    }
 }
+
+exports.getColumnById = getColumnById
 
 const getColumnByIdTable = async function (id) {
     try {
         const columns = await columnData.getColumnByIdTable(id)
-        // console.log(columns)
         if (columns != null) {
             return { 'status': 200, 'success': 'Colunas encontradas', 'data': columns }
         }
@@ -66,48 +76,87 @@ const getColumnByIdTable = async function (id) {
 
 exports.getColumnByIdTable = getColumnByIdTable
 
-exports.updateColumn = async function (data) {
-    let existentTable
-    try {
-        existentTable = await tableSystemService.findTableById(data.tabela_id)
-        if (existentTable == null)
-            return { 'status': 400, 'error': 'Tabela não encontrada!' }
-    } catch (error) {
-        return { 'status': 400, 'error': 'Erro ao consultar tabela!' }
-    }
+exports.updateColumns = async function (data) {
+    const tabela_id = data.tabela_id
+    const colunas = data.colunas
+    //Checar duplicidade
+    let duplicateColumns = checkDuplicateNames(colunas)
+    if (duplicateColumns)
+        return { 'status': 400, 'error': 'Existem colunas duplicadas nos campso!' }
 
+    let existentColumn = false
+    colunas.map((coluna) => {
+        const column = getColumnById(coluna.id)
+        if (column != null)
+            existentColumn = true
+    })
+    if (existentColumn == false)
+        return { 'status': 404, 'error': 'Coluna não encontrada!' }
+
+    //Checar nomes
     try {
-        if (data.coluna.nome != existentTable.nome) {
-            const response = await getColumnByIdTable(data.tabela_id)
-            const allColumns = response.data
-            const nameColumns = allColumns.map((column) => {
-                return column.nome
+        const response = await getColumnByIdTable(tabela_id)
+        const allColumns = response.data
+        const nameColumns = allColumns.map((column) => {
+            return column.nome
+        })
+        allColumns.map((column) => {
+            colunas.map((coluna) => {
+                if (column.id == coluna.id) {
+                    if (column.nome != coluna.nome) {
+                        const duplicateValue = nameColumns.includes(coluna.nome)
+                        if (duplicateValue)
+                            duplicateColumns = true
+                    }
+                }
             })
-            data.colunas.map((column) => {
-                duplicateColumns = nameColumns.includes(column.nome)
-            })
-            if (duplicateColumns) {
-                return { 'status': 400, 'error': 'Existem colunas duplicadas!' }
-            }
-        }
+        })
+        if (duplicateColumns)
+            return { 'status': 400, 'error': 'Existem colunas duplicadas!' }
+
     } catch (error) {
         return { 'status': 400, 'error': 'Erro ao checar duplicidade!' }
     }
 
-    if (existentTable.tipo_coluna_id != data.coluna.tipo_coluna_id) {
-        await tableDataInformation.alterTypeColumn(existentTable.nome, .nome, data.coluna.tipo_coluna)
+    try {
+        colunas.map(async (column) => {
+            await columnData.alterColumn(column)
+        })
+        return { 'status': 200, 'success': 'Colunas alteradas!' }
+    } catch (error) {
+        return { 'status': 400, 'error': 'Erro ao checar duplicidade!' }
     }
-    if (existentTable.vazio != data.coluna.ativo) {
-        await tableDataInformation.alterTypeColumn(oldTableName, existentTable.nome, data.coluna.tipo_coluna)
-    }
-    if (existentTable.nome != data.coluna.nome) {
-        await tableDataInformation.alterColumnName(oldTableName, existentTable.nome, data.coluna.nome)
-    }
-
 }
 
 exports.deleteColumn = async function (id) {
-    return await columnData.deleteColumn(id);
+    let column = {}
+    try {
+        const response = await getColumnById(id)
+        if (response.error != null)
+            return { 'status': 400, 'error': 'Falha ao consultar coluna' }
+        column = response.data
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'error': 'Falha ao consultar coluna' }
+    }
+
+    let existentTable
+    try {
+        const response = await tableSystemService.findTableById(column.tabela_id)
+        existentTable = response.data.table
+        if (existentTable == null)
+            return { 'status': 400, 'error': 'Tabela não encontrada!' }
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'error': 'Erro ao consultar tabela!' }
+    }
+
+    try {
+        await columnData.deleteColumn(id);
+        return { 'status': 200, 'success': 'Coluna deletada com sucesso!' }
+    } catch (error) {
+        return { 'status': 400, 'error': 'Falha ao deletar coluna!' }
+    }
 }
 
 const saveColumnsInDataSystem = async function (tableId, columns) {
@@ -131,27 +180,5 @@ const checkDuplicateNames = function (columns) {
         return true
     }
 }
-
-
-// try {
-//     const oldColumns = await tableDataInformation.findTableAndColumnsFromTableName(oldTableName)
-
-//     // if (oldColumns.length != data.colunas.length)
-//     //     return { 'status': 400, 'error': 'Quantidade de colunas diferentes!' }
-
-//     // const duplicateColumn = checkExistsDuplicateColumns(data.colunas)
-//     // if (duplicateColumn)
-//     //     return {'status':400,'error':'Colunas duplicatas'}
-
-//     for (let i = 0; i < oldColumns.length; i++) {
-//         const oldColumn = oldColumns[i]
-//         const newColumn = data.colunas[i]
-//         if (oldColumn.tipo_coluna != newColumn.tipo_coluna) {
-//             await tableDataInformation.alterTypeColumn(oldTableName, oldColumn.nome, newColumn.tipo_coluna)
-//         }
-//         if (oldColumn.nome != newColumn.nome) {
-//             await tableDataInformation.alterColumnName(oldTableName, oldColumn.nome, newColumn.nome)
-//         }
-//     }
 
 exports.checkDuplicateNames = checkDuplicateNames

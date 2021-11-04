@@ -29,7 +29,6 @@ const makeStatementCreateTable = function (table){
 }
 
 exports.deleteTable = function(tableName){
-    // AQUI EM VEZ DE DELETAR, É NECESSÁRIO COLOCAR UM HASH
     return databaseInformation.query(`DROP TABLE IF EXISTS ${tableName} CASCADE;`)
 }
 

@@ -10,29 +10,28 @@ exports.createColumn = function(tabela_id, column){
 }
 
 exports.getAllColumns = async function(){
-    return database.query('select * from get_columns');
+    return database.query('select * from get_columns;');
 }
 
 exports.getColumnById = async function(id){
-    return database.one('select * from get_columns where id = $1',[id]);
+    return database.oneOrNone('select * from get_columns where id = $1;',[id]);
 }
 
 exports.getColumnByIdTable = async function(id){
-    return database.query('select * from get_columns where tabela_id = $1',[id]);
+    return database.query('select * from get_columns where tabela_id = $1;',[id]);
 }
 
-exports.alterColumn = async function(id,data){
-    return database.one('update coluna set(nome,vazio,id_tipocoluna,tabela_id)=($1,$2,$3,$4) where id=$5 returning *', [
+exports.alterColumn = async function(data){
+    return database.query('update coluna set(nome,vazio,tipo_coluna_id)=($1,$2,$3) where id=$4;', [
         data.nome,
         data.vazio,
-        data.id_tipocoluna,
-        data.tabela_id,
-        id
+        data.tipo_coluna_id,
+        data.id
     ])
 }
 
 exports.deleteColumn = async function(id){
-    return database.oneOrNone("delete from coluna where id=$1 returning *" , [id]);
+    return database.query("delete from coluna where id=$1;" , [id]);
 }
 
 exports.saveColumnsInDataSystem = async function(table){

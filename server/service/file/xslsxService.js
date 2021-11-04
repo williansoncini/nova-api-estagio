@@ -36,7 +36,7 @@ function getValidRowsWithCells(rows) {
             if (validRowWithCell)
                 rowsWithCells.push(validRowWithCell)
         } catch (error) {
-            // console.log(error)
+            console.log(error)
         }
     }
     return rowsWithCells

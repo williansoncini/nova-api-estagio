@@ -166,7 +166,6 @@ exports.updateUser = async function (id, user) {
 
     try {
         let alterUser = {}
-        // console.log(oldPass)
         if (oldPass)
             alterUser = await userData.updateUserWithOutPass(id, user);
         else
