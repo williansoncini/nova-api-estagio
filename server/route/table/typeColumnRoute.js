@@ -4,8 +4,14 @@ const typeColumnService = require('../../service/table/typeColumnService')
 const {authMiddleware} = require('../../service/user/authService')
 
 router.get('/typeColumns', authMiddleware ,async function (req, res){
-    const typeColumns = await typeColumnService.gettypeColumns();
-    return res.json(typeColumns);
+    try {
+        const response = await typeColumnService.gettypeColumns();
+        if (response.status !== 200)
+            return res.status(response.status).json(response.error)
+        return res.status(response.status).json({'success':response.success, 'data':response.data})
+    } catch (error) {
+        return res.status(400).json('Falha ao consultar tipos de colunas!')        
+    }
 });
 
 router.get('/typeColumns/:id', authMiddleware, async function (req, res){

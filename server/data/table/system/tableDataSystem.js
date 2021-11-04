@@ -1,7 +1,7 @@
 const databaseSystem = require('../../../infra/database/database_system')
 
 exports.saveTable = function (table){
-    return databaseSystem.one('insert into tabela (nome, ativa, categoria_id) values ($1,$2,$3) returning *', [table.nome, table.ativa, table.categoria_id]);
+    return databaseSystem.one('insert into tabela (nome, categoria_id) values ($1,$2) returning *', [table.nome, table.categoria_id]);
 }
 
 exports.findTableById = function(id){
