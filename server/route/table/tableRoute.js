@@ -24,12 +24,11 @@ router.put('/tables/:id', authMiddleware, async function (req, res) {
     let responseSystem = {}
     try {
         responseSystem = await tableSystemService.alterTable(id, data)
-        if (responseSystem.status != 200)
-            return res.status(responseSystem.status).json(responseSystem.error)
-        else if (responseSystem.status == 304)
+        if (responseSystem.status == 304)
             return res.status(responseSystem.status).json(responseSystem.success)
+        else if (responseSystem.status != 200)
+            return res.status(responseSystem.status).json(responseSystem.error)
     } catch (error) {
-        console.log(error)
         return { 'status': 400, 'error': 'Falha ao alterar a tabela!' }
     }
 

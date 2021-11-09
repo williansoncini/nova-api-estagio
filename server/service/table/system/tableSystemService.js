@@ -81,8 +81,9 @@ exports.alterTable = async function (id, data) {
         return { 'status': 400, 'error': 'Erro ao procurar a tabela!' }
     }
 
-    if (table.nome === data.nome && table.ativa === data.ativa && table.categoria_id === data.categoria_id)
+    if (table.nome == data.nome && table.ativa == data.ativa && table.categoria_id == data.categoria_id){
         return { 'status': 304, 'success': 'Nada a ser alterado!' }
+    }
 
     try {
         if (data.nome != table.nome) {
