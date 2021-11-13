@@ -1,26 +1,109 @@
-const importCsvData = require('../../data/importCsvData')
-const csvService = require('../../service/file/csvService')
 const xlsxService = require('../../service/file/xslsxService')
 const path = require('path')
+const tableSystemService = require('../table/system/tableSystemService')
+const tableInformationService = require('../table/data/tableInformationService')
+const columnInformationService = require('../table/data/columnInformationService')
+const columnsystemService = require('../table/system/columnSystemService')
+const { insertDataIntoTable } = require('../../data/table/data/tableDataInformation')
 
-exports.importXlsxIntoTable = async function(data){
-    const {nameXlsxFile, tableName} = data
-    const xlsxBasePath = String(path.join(__dirname,'../upload/'))
-    const xlsxFilePath = xlsxBasePath+nameXlsxFile
+exports.importXlsxIntoTable = async function (data) {
+    const { nameXlsxFile, tabela_id } = data
+    const xlsxBasePath = String(path.join(__dirname, '../../upload/'))
+    const xlsxFilePath = xlsxBasePath + nameXlsxFile
 
-    await xlsxService.importXlsxIntoTable(xlsxFilePath)
-    const matrix = await xlsxService.makeMatrixWithDataXlsx(xlsxFilePath)
-    // const nameCsvFile = csvService.createCsvFromMatrix(matrix)
-    // const csvBasePath = String(path.join(__dirname,'../csvFiles/'))
-    // const csvFilePath = csvBasePath+nameCsvFile
-    
-    // return await importCsvData.importCsvIntoTable(csvFilePath, tableName)
-    return 'working'
+    let table = {}
+    let columns = {}
+    try {
+        const response = await tableSystemService.findTableById(tabela_id)
+        if (response.status != 200)
+            return {'status':response.status, 'error':response.error}
+        table = response.data.table
+        columns = response.data.columns
+    } catch (error) {
+        console.log(error)
+        return {'status':400, 'error':'Erro ao consultar tabela no sistema!'}
+    }
+
+    // const columnsTable = columns.map((column) => {
+    //     return column.nome
+    // })
+
+    const { header, body } = await xlsxService.getHeaderAndCellsFromXlsx(xlsxFilePath)
+
+    try {
+        const insertStatement = xlsxService.makeInsertStatementWithBodyXlsx(table.nome, header, body)
+        await insertDataIntoTable(insertStatement)
+        return {'status':200,'success':'Dados inseridos na tabela com sucesso!'}
+    } catch (error) {
+        return {'status':400, 'error':'Colunas ou dados incompativel com a tabela, por favor revise os dados!'}
+    }
 }
 
-const importXlsxAndCreateTable = async function(){
-    
-    return 'sucess'
+const importXlsxAndCreateTable = async function (data) {
+    const { nameXlsxFile, table } = data
+    const xlsxBasePath = String(path.join(__dirname, '../../upload/'))
+    const xlsxFilePath = xlsxBasePath + nameXlsxFile
+
+    let responseInformation = {}
+    try {
+        responseInformation = await tableInformationService.createTable(data.table)
+        if (responseInformation.status !== 200)
+            return { 'status': responseInformation.status, 'error': responseInformation.error }
+    } catch (error) {
+        return {'status':400, 'error':'Erro ai criar tabela no banco de dados!'}
+    }
+  
+    let table_id = 0
+    try {
+        const responseSystem = await tableSystemService.saveTable(data.table)
+        if (responseSystem.status !== 200)
+            return { 'status': responseSystem.status, 'error': responseSystem.error }
+        if (responseSystem.status == 200)
+            table_id = responseSystem.data.id
+    } catch (error) {
+        return {'status':400, 'error':'Erro ai criar tabela no sistema!'}
+    }
+
+    const { header, body } = await xlsxService.getHeaderAndCellsFromXlsx(xlsxFilePath)
+    let columns = {}
+    try {
+        columns = await xlsxService.getColumnsFromXlsx(header, body)
+    } catch (error) {
+        return {'status':400, 'error':'Erro ao capturar colunas do arquivo Excel'}
+    }
+
+    const valuesColumns = {
+        'tabela_id':table_id,
+        'colunas':columns
+    }
+
+    let responseColumnSystemService = ''
+    try {
+        responseColumnSystemService = await columnsystemService.createColumns(valuesColumns)
+        if (responseColumnSystemService.error)
+            return { 'status': responseColumnSystemService.status, 'error': responseColumnSystemService.error }
+    } catch (error) {
+        console.log(error)
+        return { 'status': responseColumnSystemService.status, 'error': 'Falha ao criar tabela' }
+    }
+
+    let responseColumnInformationService = ''
+    try {
+        responseColumnInformationService = await columnInformationService.createColumns(valuesColumns)
+        if (responseColumnInformationService.error)
+            return { 'status': responseColumnInformationService.status, 'error': responseColumnInformationService.error}
+    } catch (error) {
+        console.log(error)
+        return { 'status': responseColumnInformationService.status, 'error': 'Falha ao criar tabela' }
+    }
+
+    try {
+        const insertStatement = xlsxService.makeInsertStatementWithBodyXlsx(table.nome, header, body)
+        await insertDataIntoTable(insertStatement)
+        return {'status':200,'success':'Tabela criada e dados inseridos com sucesso!'}
+    } catch (error) {
+        return {'status':400, 'error':'Erro ao capturar colunas do arquivo Excel'}
+    }
 }
 
 exports.importXlsxAndCreateTable = importXlsxAndCreateTable

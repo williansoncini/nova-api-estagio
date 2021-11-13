@@ -25,16 +25,14 @@ const createColumns = async function (data) {
     }
 
     try {
-        await data.colunas.map(async (column) => {
+        await Promise.all(data.colunas.map(async (column) => {
             const data = {}
             data.nome = column.nome
             column.vazio == '0' ? data.vazio = 'not null' : data.vazio = ''
-
             const type = await typeColumnService.gettypeColumn(column.tipo_coluna_id)
             data.tipo_coluna_valor = type.valor
-
-            await columnDataInformation.createColumn(existentTable.nome, data)
-        })
+            return await columnDataInformation.createColumn(existentTable.nome, data)
+        }))
         return { 'status': 200, 'success': 'Colunas criadas!' }
     } catch (error) {
         return { 'status': 400, 'error': 'Erro ao criar colunas!' }

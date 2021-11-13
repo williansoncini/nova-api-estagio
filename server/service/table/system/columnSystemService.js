@@ -32,9 +32,9 @@ const createColumns = async function (data) {
     }
 
     try {
-        await data.colunas.map(async (column) => {
+        Promise.all(data.colunas.map(async (column) => {
             await columnData.createColumn(data.tabela_id, column)
-        })
+        }))
         return { 'status': 200, 'success': 'Colunas criadas!' }
     } catch (error) {
         return { 'status': 400, 'error': 'Erro ao criar colunas!' }
@@ -79,6 +79,7 @@ exports.getColumnByIdTable = getColumnByIdTable
 exports.updateColumns = async function (data) {
     const tabela_id = data.tabela_id
     const colunas = data.colunas
+    console.log(colunas)
     //Checar duplicidade
     let duplicateColumns = checkDuplicateNames(colunas)
     if (duplicateColumns)
@@ -175,9 +176,13 @@ function hasDuplicate(array) {
 }
 
 const checkDuplicateNames = function (columns) {
-    const nameColumns = columns.map((column) => { return column.nome })
-    if (hasDuplicate(nameColumns)) {
-        return true
+    try {
+        const nameColumns = columns.map((column) => { return column.nome })
+        if (hasDuplicate(nameColumns)) {
+            return true
+        }
+    } catch (error) {
+        console.log(error)
     }
 }
 

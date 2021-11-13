@@ -40,3 +40,7 @@ exports.findTableAndColumnsFromTableName = function(tableName){
 exports.getTablesAndColumns = function(){
     return databaseInformation.query("SELECT table_name as table,column_name as nome,udt_name as tipo_coluna from information_schema.columns where table_schema='public' order by 1, ordinal_position")
 }
+
+exports.insertDataIntoTable = function(statement){
+    return databaseInformation.query(statement)
+}

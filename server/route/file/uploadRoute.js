@@ -16,6 +16,7 @@ router.post('/upload/excel', authMiddleware, async function (req, res) {
         if (savedFile == '')
             return res.status(400).json({ 'error': 'Erro ao salvar aquivo!' })
     } catch (error) {
+        console.log(error)
         return res.status(400).json({ 'error': 'Erro ao importar aquivo!' })
     }
 
