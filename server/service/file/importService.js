@@ -33,7 +33,7 @@ exports.importXlsxIntoTable = async function (data) {
     try {
         const insertStatement = xlsxService.makeInsertStatementWithBodyXlsx(table.nome, header, body)
         await insertDataIntoTable(insertStatement)
-        return {'status':200,'success':'Dados inseridos na tabela com sucesso!'}
+        return {'status':200,'success':'Dados inseridos na tabela com sucesso!', 'tabela_id':table.id}
     } catch (error) {
         return {'status':400, 'error':'Colunas ou dados incompativel com a tabela, por favor revise os dados!'}
     }
@@ -100,7 +100,7 @@ const importXlsxAndCreateTable = async function (data) {
     try {
         const insertStatement = xlsxService.makeInsertStatementWithBodyXlsx(table.nome, header, body)
         await insertDataIntoTable(insertStatement)
-        return {'status':200,'success':'Tabela criada e dados inseridos com sucesso!'}
+        return {'status':200,'success':'Tabela criada e dados inseridos com sucesso!', 'tabela_id':table_id}
     } catch (error) {
         return {'status':400, 'error':'Erro ao capturar colunas do arquivo Excel'}
     }
