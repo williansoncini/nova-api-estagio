@@ -29,6 +29,9 @@ exports.importXlsxIntoTable = async function (data) {
     // })
 
     const { header, body } = await xlsxService.getHeaderAndCellsFromXlsx(xlsxFilePath)
+    console.log('Aqui')
+    console.log(header)
+    console.log(body)
 
     try {
         const insertStatement = xlsxService.makeInsertStatementWithBodyXlsx(table.nome, header, body)

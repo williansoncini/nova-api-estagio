@@ -151,3 +151,37 @@ const formaterTable = function (tablesSystem, tablesInformation) {
 
     return tablesSystem
 }
+
+exports.makeInsertStatement = function (tableName, header, body) {
+    statement = `INSERT INTO ${tableName} (`
+    headerLength = header.length
+    statement += header.map((column, index) => {
+        if (index == headerLength - 1)
+            return `${column}) values`
+        else
+            return `${column}`
+    })
+
+    const boyLength = body.length
+    body.map((row, rowIndex) => {
+        const rowLength = row.length
+        statement += '('
+        row.map((value, index) => {
+            type = typeof (value)
+            if (type == 'string') {
+                statement += `'${value}'`
+            }
+            else {
+                statement += `${value}`
+            }
+            if (index != rowLength - 1)
+                statement += ','
+        })
+        statement += ')'
+        if (rowIndex != boyLength - 1)
+            statement += ','
+
+    })
+    statement += ';'
+    return statement
+}
