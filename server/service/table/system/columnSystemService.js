@@ -1,10 +1,14 @@
 const columnData = require('../../../data/table/system/columnDataSystem');
+const { saveLogTable } = require('../../logs/tableLogService');
 const tableSystemService = require('./tableSystemService')
 
 
-const createColumns = async function (data) {
+const createColumns = async function (data, valueUser) {
+    let existentTable = {}
     try {
-        const existentTable = await tableSystemService.findTableById(data.tabela_id)
+        const response = await tableSystemService.findTableById(data.tabela_id)
+        console.log(response)
+        existentTable = response.data.table
         if (existentTable == null)
             return { 'status': 400, 'error': 'Tabela não encontrada!' }
     } catch (error) {
@@ -34,7 +38,14 @@ const createColumns = async function (data) {
     try {
         Promise.all(data.colunas.map(async (column) => {
             await columnData.createColumn(data.tabela_id, column)
+            const valuesLogs = {
+                'usuario': valueUser,
+                'operacao':`Criação da coluna '${column.nome}'!`,
+                'tabela': existentTable.nome
+            }
+            await saveLogTable(valuesLogs)
         }))
+
         return { 'status': 200, 'success': 'Colunas criadas!' }
     } catch (error) {
         return { 'status': 400, 'error': 'Erro ao criar colunas!' }

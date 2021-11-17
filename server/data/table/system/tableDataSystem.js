@@ -23,3 +23,4 @@ exports.getTables = function(){
 exports.getTableByNameOrNull = function (tableName){
     return databaseSystem.oneOrNone(`select * from get_tables where nome='${tableName}'`)
 }
+

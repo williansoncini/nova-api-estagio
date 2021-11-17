@@ -1,8 +1,10 @@
 const tableDataSystem = require('../../../data/table/system/tableDataSystem');
 const columnsService = require('./columnSystemService')
-const categoryService = require('../categoryService')
+const categoryService = require('../categoryService');
+const { createTable } = require('../../../data/table/data/tableDataInformation');
+const tableLogService = require('../../logs/tableLogService')
 
-exports.saveTable = async function (table) {
+exports.saveTable = async function (table, valueUser) {
     let existsTable = {}
     try {
         existsTable = await tableDataSystem.getTableByNameOrNull(table.nome)
@@ -15,6 +17,21 @@ exports.saveTable = async function (table) {
 
     try {
         const createdTable = await tableDataSystem.saveTable(table)
+        // const idColumn = {
+        //     'tabela_id': createTable.id,
+        //     'colunas': [{
+        //         'nome': 'id',
+        //         'vazio': '0',
+        //         'tipo_coluna_id': 1
+        //     }]
+        // }
+        // await columnsService.createColumns(idColumn)
+        const data = {
+            'usuario': valueUser,
+            'operacao':`Criação da tabela ${table.nome}` ,
+            'tabela': table.nome
+        }
+        await tableLogService.saveLogTable(data)
         return { 'status': 200, 'success': `A tabela ${table.nome} foi salva com successo!`, 'data': createdTable }
     } catch (error) {
         console.log(error)
@@ -47,10 +64,12 @@ exports.findTableById = async function (id) {
         } catch (error) {
             return { 'status': 400, 'error': 'Falha ao consultar colunas!' }
         }
+    } else {
+        return { 'status': 400, 'error': 'Não foi possível encontrar a tabela no banco de dados' }
     }
 }
 
-exports.deleteTable = async function (id) {
+exports.deleteTable = async function (id, valueUser) {
     let existsTable = {}
     try {
         existsTable = await tableDataSystem.findTableById(id)
@@ -61,6 +80,12 @@ exports.deleteTable = async function (id) {
     if (existsTable != null) {
         try {
             await tableDataSystem.deleteTable(id);
+            const valuesLogs = {
+                'usuario': valueUser,
+                'operacao':`Tabela '${existsTable.nome}' deletada!`,
+                'tabela': existsTable.nome
+            }
+            await tableLogService.saveLogTable(valuesLogs)
             return { 'status': 200, 'success': `A tabela '${existsTable.nome}' foi deletada com successo!`, 'tableName': existsTable.nome }
         } catch (error) {
             console.log(error)
@@ -70,7 +95,7 @@ exports.deleteTable = async function (id) {
     return { 'status': 400, 'error': `A tabela não pode ser encontrada!` }
 }
 
-exports.alterTable = async function (id, data) {
+exports.alterTable = async function (id, data, valueUser) {
     let table = {}
     try {
         table = await tableDataSystem.findTableById(id)
@@ -81,7 +106,7 @@ exports.alterTable = async function (id, data) {
         return { 'status': 400, 'error': 'Erro ao procurar a tabela!' }
     }
 
-    if (table.nome == data.nome && table.ativa == data.ativa && table.categoria_id == data.categoria_id){
+    if (table.nome == data.nome && table.ativa == data.ativa && table.categoria_id == data.categoria_id) {
         return { 'status': 304, 'success': 'Nada a ser alterado!' }
     }
 
@@ -108,6 +133,12 @@ exports.alterTable = async function (id, data) {
     try {
 
         const updatedTable = tableDataSystem.alterTable(id, data)
+        const valuesLogs = {
+            'usuario': valueUser,
+            'operacao':`Alteração feita na tabela '${table.nome}', novos dados:[nome: ${data.nome}],[categoria_id: ${data.categoria_id}],[ativa: ${data.ativa}]`,
+            'tabela': table.nome
+        }
+        await tableLogService.saveLogTable(valuesLogs)
         return {
             'status': 200, 'success': 'Tabela alterada com successo!', 'data': {
                 'oldTableName': table.nome,

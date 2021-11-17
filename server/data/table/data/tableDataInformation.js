@@ -10,7 +10,7 @@ exports.alterNameTable = function(oldName, newName){
 }
 
 exports.createTable = function(table){
-    return databaseInformation.query(`CREATE TABLE ${table.nome} ();`)
+    return databaseInformation.query(`CREATE TABLE ${table.nome} (id serial primary key);`)
 }
 
 const makeStatementCreateTable = function (table){
@@ -43,4 +43,8 @@ exports.getTablesAndColumns = function(){
 
 exports.insertDataIntoTable = function(statement){
     return databaseInformation.query(statement)
+}
+
+exports.getDataFromTable = function(tableName){
+    return databaseInformation.manyOrNone(`SELECT * FROM ${tableName};`)
 }

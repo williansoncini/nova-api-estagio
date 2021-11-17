@@ -2,13 +2,15 @@ const { response } = require('express');
 const express = require('express');
 const router = express.Router();
 const columnService = require('../../service/table/system/columnSystemService');
-const { authMiddleware } = require('../../service/user/authService')
+const { authMiddleware, getUserFromToken } = require('../../service/user/authService')
 const columnInformationService = require('../../service/table/data/columnInformationService')
 
 router.post('/columns/', authMiddleware, async function (req, res) {
     const data = req.body;
+    const user = await getUserFromToken(req.headers.authorization)
+    const valueUser = `${user.id} - ${user.nome}`
     try {
-        const response = await columnService.createColumns(data)
+        const response = await columnService.createColumns(data, valueUser)
         if (response.error)
             return res.status(response.status).json(response.error)
         // return res.status(response.status).json({ 'success': response.success })

@@ -2,16 +2,19 @@ const express = require('express');
 const router = express.Router();
 const tableSystemService = require('../../service/table/system/tableSystemService')
 const tableInformationService = require('../../service/table/data/tableInformationService')
-const { authMiddleware } = require('../../service/user/authService')
+const { authMiddleware, getUserFromToken } = require('../../service/user/authService')
 
 router.post('/tables/', authMiddleware, async function (req, res) {
     const data = req.body;
+    const user = await getUserFromToken(req.headers.authorization)
+    const valueUser = `${user.id} - ${user.nome}`
+
     let responseInformation = {}
     responseInformation = await tableInformationService.createTable(data)
     if (responseInformation.status !== 200)
         return res.status(responseInformation.status).json(responseInformation.error);
 
-    const responseSystem = await tableSystemService.saveTable(data)
+    const responseSystem = await tableSystemService.saveTable(data, valueUser)
     if (responseSystem.status !== 200)
         return res.status(responseSystem.status).json(responseSystem.error);
     return res.status(responseSystem.status).json({ 'success': responseSystem.success, 'data': responseSystem.data })
@@ -20,10 +23,12 @@ router.post('/tables/', authMiddleware, async function (req, res) {
 router.put('/tables/:id', authMiddleware, async function (req, res) {
     const id = req.params.id;
     const data = req.body;
+    const user = await getUserFromToken(req.headers.authorization)
+    const valueUser = `${user.id} - ${user.nome}`
 
     let responseSystem = {}
     try {
-        responseSystem = await tableSystemService.alterTable(id, data)
+        responseSystem = await tableSystemService.alterTable(id, data, valueUser)
         if (responseSystem.status == 304)
             return res.status(responseSystem.status).json(responseSystem.success)
         else if (responseSystem.status != 200)
@@ -47,9 +52,11 @@ router.put('/tables/:id', authMiddleware, async function (req, res) {
 
 router.delete('/tables/:id', authMiddleware, async function (req, res) {
     const id = req.params.id;
-    const responseSystem = await tableSystemService.deleteTable(id)
+    const user = await getUserFromToken(req.headers.authorization)
+    const valueUser = `${user.id} - ${user.nome}`
 
     let tableName = ''
+    const responseSystem = await tableSystemService.deleteTable(id, valueUser)
     if (responseSystem.error != null)
         return res.status(responseSystem.status).json(responseSystem.error)
 
@@ -57,7 +64,6 @@ router.delete('/tables/:id', authMiddleware, async function (req, res) {
     const responseInformation = tableInformationService.deleteTableByName(tableName)
     if (responseInformation.error != null)
         return res.status(responseInformation.status).json(responseInformation.error)
-
     return res.status(200).json(`A tabela '${tableName}' foi deletada com sucesso!`)
 })
 
