@@ -63,9 +63,7 @@ function fillMatrixWithData(cells, matrizValues) {
         columnNumber = cells[i]._column._number - 1
         if (cells[i].value.result) {
             matrizValues[rowNumber][columnNumber] = cells[i].value.result
-            console.log(cells[i].value)
         } else {
-            console.log(cells[i])
             matrizValues[rowNumber][columnNumber] = cells[i].value
         }
     }
@@ -128,7 +126,7 @@ const getColumnsFromCells = function (rowsWithCells) {
     let header = []
     for (let i = 0; i < rowsWithCells.length; i++) {
         if (rowsWithCells[i])
-            header.push(rowsWithCells[i].value)
+            header.push(rowsWithCells[i].value.trim())
     }
     return header
 }
@@ -277,9 +275,9 @@ exports.makeInsertStatementWithBodyXlsx = function (tableName, header, body) {
     headerLength = header.length
     statement += header.map((column, index) => {
         if (index == headerLength - 1)
-            return `${column}) values`
+            return `${column.trim()}) values`
         else
-            return `${column}`
+            return `${column.trim()}`
     })
 
     const boyLength = body.length
@@ -289,7 +287,7 @@ exports.makeInsertStatementWithBodyXlsx = function (tableName, header, body) {
         row.map((value, index) => {
             type = typeof (value)
             if (type == 'string') {
-                statement += `'${value}'`
+                statement += `'${value.trim()}'`
             }
             else {
                 statement += `${value}`

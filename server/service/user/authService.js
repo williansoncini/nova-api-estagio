@@ -12,14 +12,19 @@ exports.authMiddleware = async function(req,res,next){
 }
 
 exports.getUserFromToken = async function(authorization){
-    const token = authorization.split(' ')[1]
-    let decoded
     try {
-        decoded = jwt.verify(token)
+        const token = authorization.split(' ')[1]
+        let decoded
+        try {
+            decoded = jwt.verify(token)
+        } catch (error) {
+            return false
+        }
+        const userId = decoded.user
+        const user = userService.getUser(userId)
+        return user
     } catch (error) {
+        console.log(error)
         return false
     }
-    const userId = decoded.user
-    const user = userService.getUser(userId)
-    return user
 }

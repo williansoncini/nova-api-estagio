@@ -161,5 +161,12 @@ exports.geTables = async function () {
     }
 }
 
-
+exports.getLogTables = async function(){
+    try {
+        const response = await tableDataSystem.getLogTable();
+        return {'status':200, 'success':'Consulta feita com sucesso!', 'data':response}
+    } catch (error) {
+        return {'status':400, 'error':'Não foi possível coletar os logs da tabela'}
+    }
+}
 

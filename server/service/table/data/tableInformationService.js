@@ -169,7 +169,7 @@ exports.makeInsertStatement = function (tableName, header, body) {
         row.map((value, index) => {
             type = typeof (value)
             if (type == 'string') {
-                statement += `'${value}'`
+                statement += `'${value.trim()}'`
             }
             else {
                 statement += `${value}`

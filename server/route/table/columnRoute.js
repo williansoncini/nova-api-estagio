@@ -6,9 +6,14 @@ const { authMiddleware, getUserFromToken } = require('../../service/user/authSer
 const columnInformationService = require('../../service/table/data/columnInformationService')
 
 router.post('/columns/', authMiddleware, async function (req, res) {
-    const data = req.body;
+    let data = req.body;
     const user = await getUserFromToken(req.headers.authorization)
     const valueUser = `${user.id} - ${user.nome}`
+
+    data.colunas.map((column, i) => {
+        data.colunas[i].nome = column.nome.trim()
+    })
+
     try {
         const response = await columnService.createColumns(data, valueUser)
         if (response.error)
@@ -48,21 +53,31 @@ router.get('/columns/tables/:id', authMiddleware, async function (req, res) {
 })
 
 router.put('/columns', authMiddleware, async function (req, res) {
-    const data = req.body;
     try {
-        const response = await columnInformationService.updateColumns(data)
-        if (response.error != null)
-            return res.status(response.status).json(response.error)
-    } catch (error) {
-        console.log(error)
-        return res.status(400).json('Falha ao alterar a tabela!')
-    }
+        let data = req.body;
+        data.colunas.map((column, i) => {
+            data.colunas[i].nome = column.nome.trim()
+        })
+        const user = await getUserFromToken(req.headers.authorization)
+        const valueUser = `${user.id} - ${user.nome}`
+        try {
+            const response = await columnInformationService.updateColumns(data)
+            if (response.error != null)
+                return res.status(response.status).json(response.error)
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json('Falha ao alterar a tabela!')
+        }
 
-    try {
-        const response = await columnService.updateColumns(data);
-        if (response.status != 200)
-            return res.status(response.status).json(response.error)
-        return res.status(response.status).json(response.success)
+        try {
+            const response = await columnService.updateColumns(data, valueUser);
+            if (response.status != 200)
+                return res.status(response.status).json(response.error)
+            return res.status(response.status).json(response.success)
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json('Falha ao alterar a tabela!')
+        }
     } catch (error) {
         console.log(error)
         return res.status(400).json('Falha ao alterar a tabela!')
@@ -71,6 +86,8 @@ router.put('/columns', authMiddleware, async function (req, res) {
 
 router.delete('/columns/:id', authMiddleware, async function (req, res) {
     const id = (req.params.id);
+    const user = await getUserFromToken(req.headers.authorization)
+    const valueUser = `${user.id} - ${user.nome}`
     try {
         const response = await columnInformationService.deleteColumn(id)
         if (response.error != null)
@@ -80,7 +97,7 @@ router.delete('/columns/:id', authMiddleware, async function (req, res) {
     }
 
     try {
-        const response = await columnService.deleteColumn(id);
+        const response = await columnService.deleteColumn(id, valueUser);
         if (response.error != null)
             return res.status(response.status).json(response.error)
         return res.status(response.status).json(response.success)

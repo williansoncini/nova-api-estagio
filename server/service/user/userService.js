@@ -16,6 +16,9 @@ exports.saveUser = async function (user) {
     if (user.senha == null || user.senha == '')
         return { 'status': 400, 'error': 'Informe uma senha!' }
 
+    if (user.confirmaSenha == null || user.confirmaSenha == '')
+        return { 'status': 400, 'error': 'Informe uma confirmação de senha!' }
+
     if (user.departamento_id == null || user.departamento_id == '')
         return { 'status': 400, 'error': 'Informe um departamento!' }
 
@@ -24,6 +27,9 @@ exports.saveUser = async function (user) {
 
     user.nome = String(user.nome).trim()
     user.email = String(user.email).trim()
+    if (user.senha !== user.confirmaSenha)
+        return { 'status': 400, 'error': 'Senhas diferentes, informe senhas iguais!' }
+
     try {
         const existendUserEmail = await userData.getUserByEmail(user.email)
         if (existendUserEmail != null)
@@ -161,8 +167,6 @@ exports.updateUser = async function (id, user) {
         console.log(error)
         return { 'status': 400, 'error': 'Falha ao consultar usuário existente por email!' }
     }
-
-
 
     try {
         let alterUser = {}

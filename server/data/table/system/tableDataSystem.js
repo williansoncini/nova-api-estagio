@@ -24,3 +24,6 @@ exports.getTableByNameOrNull = function (tableName){
     return databaseSystem.oneOrNone(`select * from get_tables where nome='${tableName}'`)
 }
 
+exports.getLogTable = function (){
+    return databaseSystem.many('SELECT * FROM LOG_OPERACAO_TABELA')
+}

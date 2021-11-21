@@ -236,6 +236,39 @@ on coluna.tipo_coluna_id = tipo_coluna.id
 
 order by coluna.id;
 
+drop view if exists get_categorys;
+create view get_categorys
+as
+select
+	categoria.id,
+	categoria.descricao,
+	categoria.ativa,
+	case
+		when categoria.ativa = '1' then 'Ativa'
+		else 'Inativa'
+	end as ativa_descricao
+from
+	categoria
+
+order by id;
+
+
+drop view if exists get_departaments;
+create view get_departaments
+as
+select
+	departamento.id,
+	departamento.descricao,
+	departamento.ativo,
+	case
+		when departamento.ativo = '1' then 'Ativo'
+		else 'Inativo'
+	end as ativo_descricao
+from
+	departamento
+
+order by id;
+
 /*DEFAULT DATA*/
 insert into TIPO_ACESSO(descricao) values ('Usuario'),('Supervisor'),('administrador');
 insert into DEPARTAMENTO(descricao) values ('Administração'),('Gerencia'),('Financeiro');

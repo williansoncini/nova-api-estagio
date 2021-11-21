@@ -17,7 +17,7 @@ exports.insertDataIntoTable = async function (id, data){
     }
 
     const columnsTable = columns.map((column) => {
-        return column.nome
+        return column.nome.trim()
     })
     let statement = ''
     try {
@@ -54,7 +54,6 @@ exports.getDataFromTable = async function (id){
             const arrrayData = data.map((row) => {
                 return Object.values(row)
             })
-            console.log(arrrayData)
             return {'status':200, 'success':'Dados consultados com sucesso!', 'data':arrrayData}
             // return {'status':200, 'success':'Dados consultados com sucesso!', 'data':data}
         }

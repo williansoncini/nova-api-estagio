@@ -2,16 +2,16 @@ const express = require('express');
 const router = express.Router();
 const importCsvService = require('../../service/file/importCsvService')
 const importService = require('../../service/file/importService');
-const { authMiddleware } = require('../../service/user/authService');
+const { authMiddleware, getUserFromToken } = require('../../service/user/authService');
 
-router.post('/import/table'/*, authMiddleware*/,async function(req, res){
+router.post('/import/table'/*, authMiddleware*/, async function (req, res) {
     const data = req.body;
     try {
         const response = await importService.importXlsxIntoTable(data)
-        if (response.status != 200){
+        if (response.status != 200) {
             return res.status(response.status).json(response.error)
         }
-        return res.status(response.status).json({'success': response.success, 'tabela_id': response.tabela_id})
+        return res.status(response.status).json({ 'success': response.success, 'tabela_id': response.tabela_id })
     } catch (error) {
         console.log(error)
         return res.status(400).json('Erro ao tentar importar dados!')
@@ -19,17 +19,23 @@ router.post('/import/table'/*, authMiddleware*/,async function(req, res){
 });
 
 // Responsavel por criar a tabela automaticamente
-router.post('/import/create', authMiddleware,async function(req, res){
-    const data = req.body;
-    console.log(data)
+router.post('/import/create', authMiddleware, async function (req, res) {
     try {
-        const response = await importService.importXlsxAndCreateTable(data)
-        if (response.status != 200){
-            return res.status(response.status).json(response.error)
+        console.log('aqui')
+        let data = req.body;
+        const user = await getUserFromToken(req.headers.authorization)
+        const valueUser = `${user.id} - ${user.nome}`
+        try {
+            const response = await importService.importXlsxAndCreateTable(data, valueUser)
+            if (response.status != 200) {
+                return res.status(response.status).json(response.error)
+            }
+            return res.status(response.status).json({ 'success': response.success, 'tabela_id': response.tabela_id })
+        } catch (error) {
+            return res.status(400).json('Erro ao tentar importar dados!')
         }
-        return res.status(response.status).json({'success': response.success, 'tabela_id': response.tabela_id})
     } catch (error) {
-        return res.status(400).json('Erro ao tentar importar dados!')
+        return res.status(400).json('Erro ao importar dados')
     }
 });
 

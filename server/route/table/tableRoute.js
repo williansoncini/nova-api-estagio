@@ -5,24 +5,32 @@ const tableInformationService = require('../../service/table/data/tableInformati
 const { authMiddleware, getUserFromToken } = require('../../service/user/authService')
 
 router.post('/tables/', authMiddleware, async function (req, res) {
-    const data = req.body;
-    const user = await getUserFromToken(req.headers.authorization)
-    const valueUser = `${user.id} - ${user.nome}`
+    try {
+        const data = req.body;
+        data.nome = data.nome.trim()
 
-    let responseInformation = {}
-    responseInformation = await tableInformationService.createTable(data)
-    if (responseInformation.status !== 200)
-        return res.status(responseInformation.status).json(responseInformation.error);
+        const user = await getUserFromToken(req.headers.authorization)
+        const valueUser = `${user.id} - ${user.nome}`
 
-    const responseSystem = await tableSystemService.saveTable(data, valueUser)
-    if (responseSystem.status !== 200)
-        return res.status(responseSystem.status).json(responseSystem.error);
-    return res.status(responseSystem.status).json({ 'success': responseSystem.success, 'data': responseSystem.data })
+        const responseInformation = await tableInformationService.createTable(data)
+        if (responseInformation.status !== 200)
+            return res.status(responseInformation.status).json(responseInformation.error);
+
+        const responseSystem = await tableSystemService.saveTable(data, valueUser)
+        if (responseSystem.status !== 200)
+            return res.status(responseSystem.status).json(responseSystem.error);
+        return res.status(responseSystem.status).json({ 'success': responseSystem.success, 'data': responseSystem.data })
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json('Falha ao salvar a tabela!')
+    }
 });
 
 router.put('/tables/:id', authMiddleware, async function (req, res) {
     const id = req.params.id;
     const data = req.body;
+    data.nome = data.nome.trim()
+
     const user = await getUserFromToken(req.headers.authorization)
     const valueUser = `${user.id} - ${user.nome}`
 
@@ -93,6 +101,18 @@ router.get('/tables/', authMiddleware, async function (req, res) {
         'success': response.success,
         'tables': tables
     })
+})
+
+router.get('/logs/tables/', authMiddleware, async function (req, res) {
+    try {
+        const response = await tableSystemService.getLogTables()
+        if (response.status == 200)
+            return res.status(200).json({ 'success': response.success, 'data': response.data })
+        else
+            return res.status(response.status).json(response.error)
+    } catch (error) {
+        return res.status(400).json('Erro ao coletar logs da tabela!')
+    }
 })
 
 module.exports = router;

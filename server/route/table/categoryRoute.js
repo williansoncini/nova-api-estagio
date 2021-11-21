@@ -5,33 +5,71 @@ const {authMiddleware} = require('../../service/user/authService')
 
 router.get('/categorys', authMiddleware ,async function (req, res){
     try {
-        const categorys = await categoryService.getcategorys();    
-        return res.status(200).json({'success':'Dados consultados com sucesso!', 'data':categorys})
+        const response = await categoryService.getcategorys();    
+        if (response.status == 200)
+            return res.status(response.status).json({'success':response.success, 'data':response.data})
     } catch (error) {
         return res.status(400).json({'error':'Falha ao consultar categorias!'})
     }
 });
 
 router.get('/categorys/:id', authMiddleware, async function (req, res){
-    const category = await categoryService.getcategory(req.params.id);
-    return res.json(category);
+    try {
+        const id = req.params.id
+        const response = await categoryService.getCategory(id);
+        if (response.status == 200)
+            return res.status(response.status).json({'success':response.success, 'data':response.data})
+        return res.status(response.status).json(response.error)
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json('Falha ao consultar a categoria!')
+    }
 });
 
 router.post('/categorys', authMiddleware, async function (req, res){
-    const category = req.body;
-    const response = await categoryService.savecategory(category);
-    res.json(response);
+    let category
+    try {
+        category = req.body;
+        console.log(category)
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({'error':'Falha ao receber dados no banco de dados!'})
+    }
+    try {
+        const response = await categoryService.savecategory(category);
+        if (response.status == 200)
+            return res.status(response.status).json({'success:':response.success, 'data':response.data})
+        return res.status(response.status).json(response.error)
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({'error':'Falha ao salvar categoria!'})
+    }
 });
 
 router.put('/categorys/:id', authMiddleware, async function (req, res){
-    const data = req.body;
-    await categoryService.updatecategory(req.params.id,data);
-    res.end();
+    try {
+        const data = req.body;
+        const id = req.params.id
+        const response = await categoryService.updatecategory(id,data);
+        if (response.status == 200)
+            return res.status(response.status).json(response.success)
+        return res.status(response.status).json(response.error)
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json('Erro ao alterar a tabela!')
+    }
 });
 
 router.delete('/categorys/:id', authMiddleware, async function (req, res){
-    const response = await categoryService.deletecategory(req.params.id);
-    res.json(response);
+    try {
+        const response = await categoryService.deletecategory(req.params.id);
+        if (response.status == 200)        
+            return res.status(response.status).json(response.success)
+        return res.status(response.status).json(response.error)
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json('Erro ao deletar tabela!')
+    }
 });
 
 module.exports = router;

@@ -7,7 +7,6 @@ const createColumns = async function (data, valueUser) {
     let existentTable = {}
     try {
         const response = await tableSystemService.findTableById(data.tabela_id)
-        console.log(response)
         existentTable = response.data.table
         if (existentTable == null)
             return { 'status': 400, 'error': 'Tabela não encontrada!' }
@@ -40,7 +39,7 @@ const createColumns = async function (data, valueUser) {
             await columnData.createColumn(data.tabela_id, column)
             const valuesLogs = {
                 'usuario': valueUser,
-                'operacao':`Criação da coluna '${column.nome}'!`,
+                'operacao': `Criação da coluna '${column.nome}'!`,
                 'tabela': existentTable.nome
             }
             await saveLogTable(valuesLogs)
@@ -87,14 +86,23 @@ const getColumnByIdTable = async function (id) {
 
 exports.getColumnByIdTable = getColumnByIdTable
 
-exports.updateColumns = async function (data) {
+exports.updateColumns = async function (data, valueUser) {
     const tabela_id = data.tabela_id
     const colunas = data.colunas
-    console.log(colunas)
     //Checar duplicidade
     let duplicateColumns = checkDuplicateNames(colunas)
     if (duplicateColumns)
         return { 'status': 400, 'error': 'Existem colunas duplicadas nos campso!' }
+
+    let existentTable = {}
+    try {
+        const response = await tableSystemService.findTableById(data.tabela_id)
+        existentTable = response.data.table
+        if (existentTable == null)
+            return { 'status': 400, 'error': 'Tabela não encontrada!' }
+    } catch (error) {
+        return { 'status': 400, 'error': 'Erro ao consultar tabela!' }
+    }
 
     let existentColumn = false
     colunas.map((coluna) => {
@@ -133,6 +141,12 @@ exports.updateColumns = async function (data) {
     try {
         colunas.map(async (column) => {
             await columnData.alterColumn(column)
+            const valuesLogs = {
+                'usuario': valueUser,
+                'operacao': `Alteração realizada na coluna '${column.nome}', novos valores [nome:${column.nome},tipo_coluna_id:${column.tipo_coluna_id}, vazio:${column.vazio}]!`,
+                'tabela': existentTable.nome
+            }
+            await saveLogTable(valuesLogs)
         })
         return { 'status': 200, 'success': 'Colunas alteradas!' }
     } catch (error) {
@@ -140,7 +154,7 @@ exports.updateColumns = async function (data) {
     }
 }
 
-exports.deleteColumn = async function (id) {
+exports.deleteColumn = async function (id, valueUser) {
     let column = {}
     try {
         const response = await getColumnById(id)
@@ -165,6 +179,12 @@ exports.deleteColumn = async function (id) {
 
     try {
         await columnData.deleteColumn(id);
+        const valuesLogs = {
+            'usuario': valueUser,
+            'operacao': `Coluna '${column.nome}' deletada!`,
+            'tabela': existentTable.nome
+        }
+        await saveLogTable(valuesLogs)
         return { 'status': 200, 'success': 'Coluna deletada com sucesso!' }
     } catch (error) {
         return { 'status': 400, 'error': 'Falha ao deletar coluna!' }
