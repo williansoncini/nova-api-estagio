@@ -2,11 +2,15 @@ const express = require('express');
 const router = express.Router();
 const tableSystemService = require('../../service/table/system/tableSystemService')
 const tableInformationService = require('../../service/table/data/tableInformationService')
-const { authMiddleware, getUserFromToken } = require('../../service/user/authService')
+const { authMiddleware, getUserFromToken } = require('../../service/user/authService');
+const { validadeOnlyTextAndUnderscore } = require('../../service/validators/string');
 
 router.post('/tables/', authMiddleware, async function (req, res) {
     try {
         const data = req.body;
+        const invalidText = validadeOnlyTextAndUnderscore(data.nome)
+        if (!invalidText)
+            return res.status(400).json("Nome da tabela invalido, apenas letras e underline!")
         data.nome = data.nome.trim()
 
         const user = await getUserFromToken(req.headers.authorization)
@@ -29,6 +33,9 @@ router.post('/tables/', authMiddleware, async function (req, res) {
 router.put('/tables/:id', authMiddleware, async function (req, res) {
     const id = req.params.id;
     const data = req.body;
+    const invalidText = validadeOnlyTextAndUnderscore(data.nome)
+    if (!invalidText)
+        return res.status(400).json("Nome da tabela invalido, apenas letras e underline!")
     data.nome = data.nome.trim()
 
     const user = await getUserFromToken(req.headers.authorization)

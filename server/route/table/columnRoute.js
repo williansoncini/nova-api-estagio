@@ -3,16 +3,21 @@ const express = require('express');
 const router = express.Router();
 const columnService = require('../../service/table/system/columnSystemService');
 const { authMiddleware, getUserFromToken } = require('../../service/user/authService')
-const columnInformationService = require('../../service/table/data/columnInformationService')
+const columnInformationService = require('../../service/table/data/columnInformationService');
+const { validadeOnlyTextAndUnderscore } = require('../../service/validators/string');
 
 router.post('/columns/', authMiddleware, async function (req, res) {
     let data = req.body;
     const user = await getUserFromToken(req.headers.authorization)
     const valueUser = `${user.id} - ${user.nome}`
-
+    let invalidText = false
     data.colunas.map((column, i) => {
         data.colunas[i].nome = column.nome.trim()
+        if (!validadeOnlyTextAndUnderscore(column.nome))
+            invalidText = true
     })
+    if (invalidText)
+        return res.status(400).json("Nome da coluna invalido, apenas letras e underline!")
 
     try {
         const response = await columnService.createColumns(data, valueUser)
@@ -55,9 +60,16 @@ router.get('/columns/tables/:id', authMiddleware, async function (req, res) {
 router.put('/columns', authMiddleware, async function (req, res) {
     try {
         let data = req.body;
+        let invalidText = false
         data.colunas.map((column, i) => {
             data.colunas[i].nome = column.nome.trim()
+            if (!validadeOnlyTextAndUnderscore(column.nome))
+                invalidText = true
         })
+        if (invalidText)
+            return res.status(400).json("Nome da coluna invalido, apenas letras e underline!")
+
+
         const user = await getUserFromToken(req.headers.authorization)
         const valueUser = `${user.id} - ${user.nome}`
         try {
