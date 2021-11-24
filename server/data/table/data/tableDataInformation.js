@@ -57,3 +57,7 @@ exports.deleteRowFromTable = function(tableName, idRow){
 exports.updateDataFromTable = function (statement){
     return databaseInformation.query(statement)
 }
+
+exports.createTable_new = function (statement){
+    return databaseInformation.query(statement)
+}

@@ -20,6 +20,10 @@ exports.createTable = async function (table) {
     }
 }
 
+exports.createTable_new = async function (statement){
+    return await tableDataInformation.createTable_new(statement)
+}
+
 exports.alterTable = async function (data, oldTableName) {
     try {
         existsTable = await tableDataInformation.getTableNameFromName(oldTableName)

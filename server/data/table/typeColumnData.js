@@ -14,8 +14,8 @@ exports.deletetypeColumn = function(id){
     return database.oneOrNone("delete from tipo_coluna where id=$1 returning *" , [id]);
 };
 
-exports.gettypeColumn = function(id){
-    return database.oneOrNone('select * from tipo_coluna where id = $1',[id]);
+exports.gettypeColumn = async function(id){
+    return await database.oneOrNone('select * from tipo_coluna where id = $1',[id]);
 }
 
 exports.updatetypeColumn = function(id, data){

@@ -9,6 +9,10 @@ exports.createColumn = function(tabela_id, column){
     ]);
 }
 
+exports.createColumn_new = function (statement){
+    return database.query(statement)
+}
+
 exports.getAllColumns = async function(){
     return database.query('select * from get_columns;');
 }

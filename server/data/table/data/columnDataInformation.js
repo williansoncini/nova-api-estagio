@@ -1,7 +1,11 @@
 const databaseInformation = require('../../../infra/database/database_information')
 
-exports.createColumn = function (tableName, data){
-    return databaseInformation.query(`ALTER TABLE ${tableName} ADD COLUMN ${data.nome} ${data.tipo_coluna_valor} ${data.vazio};`)
+exports.createColumn = async function (tableName, data){
+       return await databaseInformation.none(`ALTER TABLE ${tableName} ADD COLUMN ${data.nome} ${data.tipo_coluna_valor} ${data.vazio};`)
+}
+
+exports.createColumn_new = async function (statement){
+    return databaseInformation.query(statement)
 }
 
 exports.alterColumnName = function(tableName, oldName, newName){

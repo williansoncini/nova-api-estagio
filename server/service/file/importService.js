@@ -74,6 +74,8 @@ const importXlsxAndCreateTable = async function (data, valueUser) {
         let columns = {}
         try {
             columns = await xlsxService.getColumnsFromXlsx(header, body)
+            console.log('ImportService')
+            console.log(columns)
         } catch (error) {
             console.log(error)
             return { 'status': 400, 'error': 'Erro ao capturar colunas do arquivo Excel' }
@@ -86,7 +88,7 @@ const importXlsxAndCreateTable = async function (data, valueUser) {
 
         let responseColumnSystemService = ''
         try {
-            responseColumnSystemService = await columnsystemService.createColumns(valuesColumns)
+            responseColumnSystemService = await columnsystemService.createColumns(valuesColumns, valueUser)
             if (responseColumnSystemService.error)
                 return { 'status': responseColumnSystemService.status, 'error': responseColumnSystemService.error }
         } catch (error) {
@@ -96,7 +98,7 @@ const importXlsxAndCreateTable = async function (data, valueUser) {
 
         let responseColumnInformationService = ''
         try {
-            responseColumnInformationService = await columnInformationService.createColumns(valuesColumns)
+            responseColumnInformationService = await columnInformationService.createColumns_new(valuesColumns)
             if (responseColumnInformationService.error)
                 return { 'status': responseColumnInformationService.status, 'error': responseColumnInformationService.error }
         } catch (error) {

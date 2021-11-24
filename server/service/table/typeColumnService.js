@@ -19,8 +19,8 @@ exports.deletetypeColumn = function(id){
     return typeColumnData.deletetypeColumn(id);
 };
 
-exports.gettypeColumn = function(id){
-    return typeColumnData.gettypeColumn(id);
+exports.gettypeColumn = async function(id){
+    return await typeColumnData.gettypeColumn(id);
 }
 
 exports.updatetypeColumn = async function(id, typeColumn){

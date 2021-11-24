@@ -1,6 +1,7 @@
 const columnData = require('../../../data/table/system/columnDataSystem');
 const { saveLogTable } = require('../../logs/tableLogService');
 const tableSystemService = require('./tableSystemService')
+const Promise = require('bluebird')
 
 
 const createColumns = async function (data, valueUser) {
@@ -35,18 +36,41 @@ const createColumns = async function (data, valueUser) {
     }
 
     try {
-        Promise.all(data.colunas.map(async (column) => {
-            await columnData.createColumn(data.tabela_id, column)
-            const valuesLogs = {
-                'usuario': valueUser,
-                'operacao': `Criação da coluna '${column.nome}'!`,
-                'tabela': existentTable.nome
+        // Promise.all(data.colunas.map(async (column) => {
+        //     await columnData.createColumn(data.tabela_id, column)
+        //     const valuesLogs = {
+        //         'usuario': valueUser,
+        //         'operacao': `Criação da coluna '${column.nome}'!`,
+        //         'tabela': existentTable.nome
+        //     }
+        //     await saveLogTable(valuesLogs)
+        // }))
+        console.log('data colunas')
+        console.log(data.colunas)
+        // await Promise.map(data.colunas, async (column) => {
+        //     await columnData.createColumn(data.tabela_id, column)
+        //     const valuesLogs = {
+        //         'usuario': valueUser,
+        //         'operacao': `Criação da coluna '${column.nome}'!`,
+        //         'tabela': existentTable.nome
+        //     }
+        //     await saveLogTable(valuesLogs)
+        // },{concurrency:2});
+        let statement = `INSERT INTO coluna (nome, vazio, tipo_coluna_id, tabela_id) values `
+        const columnsLength = data.colunas.length
+        data.colunas.map((column, index) => {
+            if (index !== columnsLength -1){
+                statement += `('${column.nome}','${column.vazio}',${column.tipo_coluna_id},${data.tabela_id}),`
+            } else {
+                statement += `('${column.nome}','${column.vazio}',${column.tipo_coluna_id},${data.tabela_id});`
             }
-            await saveLogTable(valuesLogs)
-        }))
+        })
+        console.log(statement)
+        await columnData.createColumn_new(statement);
 
         return { 'status': 200, 'success': 'Colunas criadas!' }
     } catch (error) {
+        console.log(error)
         return { 'status': 400, 'error': 'Erro ao criar colunas!' }
     }
 }

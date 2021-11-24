@@ -39,5 +39,23 @@ router.post('/import/create', authMiddleware, async function (req, res) {
     }
 });
 
+router.post('/import/create/new', authMiddleware, async function (req, res) {
+    try {
+        let data = req.body;
+        const user = await getUserFromToken(req.headers.authorization)
+        const valueUser = `${user.id} - ${user.nome}`
+        try {
+            const response = await importService.importXlsxAndCreateTable(data, valueUser)
+            if (response.status != 200) {
+                return res.status(response.status).json(response.error)
+            }
+            return res.status(response.status).json({ 'success': response.success, 'tabela_id': response.tabela_id })
+        } catch (error) {
+            return res.status(400).json('Erro ao tentar importar dados!')
+        }
+    } catch (error) {
+        return res.status(400).json('Erro ao importar dados')
+    }
+});
 
 module.exports = router;

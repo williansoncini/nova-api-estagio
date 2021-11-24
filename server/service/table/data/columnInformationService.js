@@ -31,6 +31,9 @@ const createColumns = async function (data) {
             column.vazio == '0' ? data.vazio = 'not null' : data.vazio = ''
             const type = await typeColumnService.gettypeColumn(column.tipo_coluna_id)
             data.tipo_coluna_valor = type.valor
+            let promise = await new Promise(function (resolve, reject) {
+                setTimeout(() => resolve("done"), 300);
+            });
             return await columnDataInformation.createColumn(existentTable.nome, data)
         }))
         return { 'status': 200, 'success': 'Colunas criadas!' }
@@ -40,6 +43,52 @@ const createColumns = async function (data) {
 }
 
 exports.createColumns = createColumns
+
+exports.createColumns_new = async (data) => {
+    console.log('ColumnInformation')
+    console.log(data)
+    let existentTable
+    try {
+        const response = await tableSystemService.findTableById(data.tabela_id)
+        existentTable = response.data.table
+        if (existentTable == null)
+            return { 'status': 400, 'error': 'Tabela não encontrada!' }
+    } catch (error) {
+        return { 'status': 400, 'error': 'Erro ao consultar tabela!' }
+    }
+
+    try {
+        const existsTableDatabase = await tableDataInformation.getTableByNameOrNull(existentTable.nome)
+        if (existsTableDatabase == null)
+            return { 'status': 400, 'error': 'Tabela não encontrada!' }
+    } catch (error) {
+        return { 'status': 400, 'error': 'Falha ao consultar tabela no banco de dados de informações' }
+    }
+
+    try {
+        let typeColumns
+        const responseTypeColumns = await typeColumnService.gettypeColumns()
+        if (responseTypeColumns.status == 200)
+        typeColumns = responseTypeColumns.data
+        console.log(typeColumns)
+
+        let statement = `ALTER TABLE ${existentTable.nome} `
+        const columnsLength = data.colunas.length
+        data.colunas.map((column, index) => {
+            const typeColumn = typeColumns.filter((type)=> type.id == column.tipo_coluna_id)
+            if (index !== columnsLength-1)
+                statement += `ADD COLUMN ${column.nome} ${typeColumn[0].valor},`
+            else
+                statement += `ADD COLUMN ${column.nome} ${typeColumn[0].valor};`
+        })
+        console.log(statement)
+        await columnDataInformation.createColumn_new(statement)
+        return { 'status': 200, 'success': 'Colunas criadas!' }
+    } catch (error) {
+        console.log(error)
+        return { 'status': 400, 'error': 'Erro ao criar colunas!' }
+    }
+}
 
 exports.updateColumns = async function (data) {
     let existentTable
