@@ -45,8 +45,6 @@ const createColumns = async function (data, valueUser) {
         //     }
         //     await saveLogTable(valuesLogs)
         // }))
-        console.log('data colunas')
-        console.log(data.colunas)
         // await Promise.map(data.colunas, async (column) => {
         //     await columnData.createColumn(data.tabela_id, column)
         //     const valuesLogs = {
@@ -65,7 +63,6 @@ const createColumns = async function (data, valueUser) {
                 statement += `('${column.nome}','${column.vazio}',${column.tipo_coluna_id},${data.tabela_id});`
             }
         })
-        console.log(statement)
         await columnData.createColumn_new(statement);
 
         return { 'status': 200, 'success': 'Colunas criadas!' }

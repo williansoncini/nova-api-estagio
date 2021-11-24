@@ -29,9 +29,6 @@ exports.importXlsxIntoTable = async function (data) {
     // })
 
     const { header, body } = await xlsxService.getHeaderAndCellsFromXlsx(xlsxFilePath)
-    console.log('Aqui')
-    console.log(header)
-    console.log(body)
 
     try {
         const insertStatement = xlsxService.makeInsertStatementWithBodyXlsx(table.nome, header, body)
@@ -74,8 +71,6 @@ const importXlsxAndCreateTable = async function (data, valueUser) {
         let columns = {}
         try {
             columns = await xlsxService.getColumnsFromXlsx(header, body)
-            console.log('ImportService')
-            console.log(columns)
         } catch (error) {
             console.log(error)
             return { 'status': 400, 'error': 'Erro ao capturar colunas do arquivo Excel' }

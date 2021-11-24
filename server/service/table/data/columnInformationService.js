@@ -45,8 +45,6 @@ const createColumns = async function (data) {
 exports.createColumns = createColumns
 
 exports.createColumns_new = async (data) => {
-    console.log('ColumnInformation')
-    console.log(data)
     let existentTable
     try {
         const response = await tableSystemService.findTableById(data.tabela_id)
@@ -70,7 +68,6 @@ exports.createColumns_new = async (data) => {
         const responseTypeColumns = await typeColumnService.gettypeColumns()
         if (responseTypeColumns.status == 200)
         typeColumns = responseTypeColumns.data
-        console.log(typeColumns)
 
         let statement = `ALTER TABLE ${existentTable.nome} `
         const columnsLength = data.colunas.length
@@ -81,7 +78,6 @@ exports.createColumns_new = async (data) => {
             else
                 statement += `ADD COLUMN ${column.nome} ${typeColumn[0].valor};`
         })
-        console.log(statement)
         await columnDataInformation.createColumn_new(statement)
         return { 'status': 200, 'success': 'Colunas criadas!' }
     } catch (error) {

@@ -90,20 +90,14 @@ exports.updateDataFromTable = async function (tableId, data) {
     let columns = {}
     try {
         const response = await tableSystemService.findTableById(tableId)
-        // console.log(response)
         if (response.status != 200)
             return { 'status': response.status, 'error': response.error }
         table = response.data.table
         columns = response.data.columns
     } catch (error) {
-        console.log(error)
         return { 'status': 400, 'error': 'Erro ao consultar tabela no sistema!' }
     }
 
-    // console.log(columns)
-    // columns.map((column) => {
-    //     console.log(column)
-    // })
     try {
         await Promise.all(data.map(async (row) => {
             let statement = `UPDATE ${table.nome} SET`
@@ -115,20 +109,19 @@ exports.updateDataFromTable = async function (tableId, data) {
                     // if (isNaN(rowValue)) {
                     if (parseFloat(rowValue)) {
                         statement += ` ${column.nome}=${rowValue}`
-                        console.log('number')
                     } else if (parseInt(rowValue)) {
                         statement += ` ${column.nome}=${rowValue}`
-                        console.log('integer')
                     } else {
-                        console.log('string')
                         statement += ` ${column.nome}='${rowValue}'`
                     }
                 }
                 else
-                    statement += ` ${column.nome}=${valueFromData}`
+                    statement += ` ${column.nome}=${rowValue}`
 
-                if (index !== columnsLength-1)
+                if (index !== columnsLength - 1)
                     statement += ','
+                else
+                    statement += ' '
             })
             statement += `WHERE ID = ${row[0]};`
             console.log(statement)

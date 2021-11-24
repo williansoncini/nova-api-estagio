@@ -37,8 +37,6 @@ router.get('/tables/:id/data'/*, authMiddleware,*/, async function (req, res) {
 router.delete('/tables/:tableId/data/:rowId'/*, authMiddleware,*/, async function (req, res) {
     const tableId = req.params.tableId
     const rowId = req.params.rowId
-    console.log(rowId)
-    console.log(tableId)
     try {
         const response = await deleteRowFromTable(tableId, rowId)
         if (response.status == 200) {
@@ -54,7 +52,6 @@ router.delete('/tables/:tableId/data/:rowId'/*, authMiddleware,*/, async functio
 
 router.put('/tables/:tableId/data/'/*, authMiddleware,*/, async function (req, res) {
     try {
-        console.log('aqui')
         const tableId = req.params.tableId
         const data = req.body
 

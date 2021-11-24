@@ -30,7 +30,6 @@ router.post('/categorys', authMiddleware, async function (req, res){
     let category
     try {
         category = req.body;
-        console.log(category)
     } catch (error) {
         console.log(error)
         return res.status(400).json({'error':'Falha ao receber dados no banco de dados!'})

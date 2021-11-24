@@ -21,7 +21,6 @@ router.post('/import/table'/*, authMiddleware*/, async function (req, res) {
 // Responsavel por criar a tabela automaticamente
 router.post('/import/create', authMiddleware, async function (req, res) {
     try {
-        console.log('aqui')
         let data = req.body;
         const user = await getUserFromToken(req.headers.authorization)
         const valueUser = `${user.id} - ${user.nome}`

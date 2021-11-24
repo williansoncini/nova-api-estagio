@@ -235,8 +235,6 @@ exports.getColumnsFromXlsx = async function (header, body) {
         columnsName.push(column)
     })
 
-    console.log(columnsName)
-
     const response = await typeColumnsService.gettypeColumns()
     const typecolumns = response.data
 
@@ -270,7 +268,6 @@ exports.getColumnsFromXlsx = async function (header, body) {
         }
     })
 
-    console.log(columns)
     return columns
 }
 
