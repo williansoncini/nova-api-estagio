@@ -47,5 +47,13 @@ exports.insertDataIntoTable = function(statement){
 }
 
 exports.getDataFromTable = function(tableName){
-    return databaseInformation.manyOrNone(`SELECT * FROM ${tableName};`)
+    return databaseInformation.manyOrNone(`SELECT * FROM ${tableName} order by id;`)
+}
+
+exports.deleteRowFromTable = function(tableName, idRow){
+    return databaseInformation.query(`DELETE FROM ${tableName} WHERE ID=${idRow};`)
+}
+
+exports.updateDataFromTable = function (statement){
+    return databaseInformation.query(statement)
 }
